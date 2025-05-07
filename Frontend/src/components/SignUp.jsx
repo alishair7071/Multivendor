@@ -6,6 +6,7 @@ import { RxAvatar } from "react-icons/rx";
 import axios from 'axios';
 import { server } from "../server";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -25,6 +26,11 @@ const SignUp = () => {
     const config= {
       headers: {"Content-Type" : "multipart/form-data"}
     }
+    if(avatar==null){
+      toast("Please select profile the image");
+      return;
+    }
+   
 
     const newForm= new FormData();
     newForm.append("file", avatar);
@@ -34,16 +40,15 @@ const SignUp = () => {
 
     axios.post(`${server}/user/create-user`, newForm, config)
     .then((res)=>{
-      if(res.data.success= true){
-        navigate('/');
-      }
+      toast.success(res.data.message);
+      setName("");
+      setEmail("");
+      setPassword("");
+      setAvatar(null);
     }).catch((err)=>{
       console.log(err);
+      toast.error(err.response.data.message);
     })
-
-
-
-    console.log("Form submitted");
   };
 
 
