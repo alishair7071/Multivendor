@@ -5,8 +5,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { server } from "../server";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { loadUser } from "../redux/actions/user";
 
 const Login = () => {
+  const dispatch= useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
@@ -26,13 +29,15 @@ const Login = () => {
         body: JSON.stringify({
           email,
           password
-        })
+        }),
+        credentials: 'include'
       });
 
       const data= await res.json();
       if(data.success== true){
         toast.success("Login Success!");
         console.log("success");
+        dispatch(loadUser());
         navigate("/");  
       }
       if(data.success==false){

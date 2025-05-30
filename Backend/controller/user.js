@@ -9,6 +9,7 @@ const sendMail = require("../utils/sendMail.js");
 const jwt = require("jsonwebtoken");
 const catchAsyncError = require("../middleware/catchAsyncError.js");
 const sendToken = require("../utils/jwtToken.js");
+const { isAuthenticated } = require("../middleware/auth.js");
 
 //create activation token
 const createActivationToken = (user) => {
@@ -142,6 +143,25 @@ router.post("/login-user", catchAsyncError(async (req, res, next)=>{
 
   }catch(e){
 
+  }
+}))
+
+
+//loadUser
+router.get("/getuser", isAuthenticated, catchAsyncError(async (req, res, next)=>{
+  try{
+    const user= await User.findById(req.user.id);
+    if(!user){
+      return next(new ErrorHandler("User doesn't exists", 400));
+    }
+
+    res.status(200).json({
+      success: true,
+      user
+    });
+
+  }catch(e){
+    return next(new ErrorHandler(e.message, 500));
   }
 }))
 

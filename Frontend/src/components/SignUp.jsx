@@ -45,6 +45,7 @@ const SignUp = () => {
       setEmail("");
       setPassword("");
       setAvatar(null);
+      navigate("/login");
     }).catch((err)=>{
       console.log(err);
       toast.error(err.response.data.message);
