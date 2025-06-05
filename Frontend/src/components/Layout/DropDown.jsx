@@ -7,13 +7,13 @@ const DropDown = ({categoriesData, setDropDown}) => {
     const navigate= useNavigate();
 
     const submitHandle= (i)=>{
-        navigate(`products?category=${i.title}`);
+        navigate(`/products?category=${i.title}`);
         setDropDown(false);
         window.location.reload();
     }    
 
   return (
-    <div className="pb-4 w-[70px] absolute z-30 rounded-b-md shadow-sm">
+    <div className="pb-4 w-[270px] bg-white absolute z-30 rounded-b-md shadow-sm">
         {categoriesData && categoriesData.map((i, index)=>(
             <div 
             key={index}
