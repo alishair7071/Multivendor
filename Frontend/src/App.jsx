@@ -15,18 +15,25 @@ import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
 import { server } from "./server.js";
 import Store from "./redux/store.js";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { loadUser } from "./redux/actions/user.js";
 //import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const dispatch = useDispatch();
+  const {loading}= useSelector((state)=> state.user);
+
+
   useEffect(() => {
     dispatch(loadUser());
   }, []);
 
   return (
-    <BrowserRouter>
+    <> {
+      loading ? (
+        null
+      ) : (
+        <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -53,6 +60,9 @@ function App() {
         theme="dark"
       />
     </BrowserRouter>
+      )
+    }
+    </>
   );
 }
 

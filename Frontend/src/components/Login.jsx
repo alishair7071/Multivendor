@@ -38,7 +38,8 @@ const Login = () => {
         toast.success("Login Success!");
         console.log("success");
         dispatch(loadUser());
-        navigate("/");  
+        navigate("/");
+        window.location.reload();
       }
       if(data.success==false){
         toast.error(data.message);

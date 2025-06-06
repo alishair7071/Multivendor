@@ -2,18 +2,29 @@ import React, { useState } from "react";
 import styles from "../../styles/styles";
 import { Link } from "react-router-dom";
 import { categoriesData, productData } from "../../static/data.jsx";
-import { AiOutlineHeart, AiOutlineSearch, AiOutlineShoppingCart } from "react-icons/ai";
+import {
+  AiOutlineHeart,
+  AiOutlineSearch,
+  AiOutlineShoppingCart,
+} from "react-icons/ai";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 import { BiMenuAltLeft } from "react-icons/bi";
 import DropDown from "./DropDown.jsx";
 import Navbar from "./Navbar.jsx";
-import {CgProfile} from "react-icons/cg";
+import { CgProfile } from "react-icons/cg";
+import { useSelector } from "react-redux";
+import { backend_url } from "../../server.js";
 
 const Header = ({ activeHeading }) => {
+  const { isAuthenticated, user} = useSelector((state) => state.user);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [searchData, setSearchData] = useState("");
   const [active, setActive] = useState(false);
   const [dropDown, setDropDown] = useState(false);
+
+  console.log(isAuthenticated);
+  console.log(user);
 
   //handle the typing in search bar
   const handleSearchChange = (e) => {
@@ -27,14 +38,6 @@ const Header = ({ activeHeading }) => {
     setSearchData(filteredProducts);
   };
 
-  /*window.addEventListener("scroll", () => {
-    if (window.scrollY > 70) {
-      setActive(true);
-    } else {
-      setActive(false);
-    }
-  });
-*/
   return (
     <>
       {/*header*/}
@@ -93,7 +96,6 @@ const Header = ({ activeHeading }) => {
           </div>
         </div>
       </div>
-      
 
       <div
         className={`
@@ -132,49 +134,49 @@ const Header = ({ activeHeading }) => {
             <Navbar active={activeHeading} />
           </div>
 
-
-              <div className="flex">
-              <div>
-                <div className={styles.noramlFlex}>
-                    <div className="relative cursor-pointer mr-[15px]">
-                        <AiOutlineHeart 
-                        color="rgb(255 255 255 /83%)"
-                        size={30}
-                        />
-                        <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top top right m-0 p-0 text-white font-mono text-[12px] leading-tight text-center ">
-                            0
-                        </span>
-                    </div>
+          <div className="flex">
+            <div>
+              <div className={styles.noramlFlex}>
+                <div className="relative cursor-pointer mr-[15px]">
+                  <AiOutlineHeart color="rgb(255 255 255 /83%)" size={30} />
+                  <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top top right m-0 p-0 text-white font-mono text-[12px] leading-tight text-center ">
+                    0
+                  </span>
                 </div>
               </div>
+            </div>
 
-              <div>
-                <div className={styles.noramlFlex}>
-                    <div className="relative cursor-pointer mr-[15px]">
-                        <AiOutlineShoppingCart 
-                        color="rgb(255 255 255 /83%)"
-                        size={30}
-                        />
-                        <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top top right m-0 p-0 text-white font-mono text-[12px] leading-tight text-center ">
-                            1
-                        </span>
-                    </div>
+            <div>
+              <div className={styles.noramlFlex}>
+                <div className="relative cursor-pointer mr-[15px]">
+                  <AiOutlineShoppingCart
+                    color="rgb(255 255 255 /83%)"
+                    size={30}
+                  />
+                  <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top top right m-0 p-0 text-white font-mono text-[12px] leading-tight text-center ">
+                    1
+                  </span>
                 </div>
               </div>
-              <div>
-                <div className={styles.noramlFlex}>
-                    <div className="relative cursor-pointer mr-[15px]">
-                       <Link to= "/login"> 
-                        <CgProfile
-                        color="rgb(255 255 255 /83%)"
-                        size={30}
-                        />
-                        </Link>
-                    </div>
+            </div>
+            <div>
+              <div className={styles.noramlFlex}>
+                <div className="relative cursor-pointer mr-[15px]">
+                  {isAuthenticated ? (
+                    <Link to="/profile">
+                        <img
+                        className="rounded-full w-[35px] h-[35px]"
+                         src={`${backend_url}/${user.avatar}`} alt="" />
+                    </Link>
+                  ) : (
+                    <Link to="/login">
+                      <CgProfile color="rgb(255 255 255 /83%)" size={30} />
+                    </Link>
+                  )}
                 </div>
               </div>
-              </div>
-
+            </div>
+          </div>
         </div>
       </div>
     </>
