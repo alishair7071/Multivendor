@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import styles from "../styles/styles";
+import styles from "../../styles/styles";
 import { Link, useNavigate } from "react-router-dom";
-import { server } from "../server";
+import { server } from "../../server";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { loadUser } from "../redux/actions/user";
+import { loadUser } from "../../redux/actions/user";
 
-const Login = () => {
+const ShopLogin = () => {
   const dispatch= useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,7 +21,7 @@ const Login = () => {
     console.log("login called");
 
     try{
-      const res= await fetch(`${server}/user/login-user`, {
+      const res= await fetch(`${server}/shop/login-shop`, {
         method: "POST",
         headers: {
           'Content-Type' : "application/json"
@@ -37,8 +37,6 @@ const Login = () => {
       if(data.success== true){
         toast.success("Login Success!");
         console.log("success");
-        dispatch(loadUser());
-        navigate("/");
         window.location.reload(true);
       }
       if(data.success==false){
@@ -56,7 +54,7 @@ const Login = () => {
     <div className="min-h-screen bg-green-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Login to your account
+          Login to your shop
         </h2>
       </div>
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -150,7 +148,7 @@ const Login = () => {
 
             <div className={`${styles.noramlFlex} w-full`}>
               <h4>Not have an account?</h4>
-              <Link to ="/sign-up" className="text-blue-600 pl-2 hover:text-blue-500 hover:cursor-pointer">
+              <Link to ="/shop-create" className="text-blue-600 pl-2 hover:text-blue-500 hover:cursor-pointer">
                 Sign Up
               </Link>
 
@@ -162,4 +160,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ShopLogin;

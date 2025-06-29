@@ -6,7 +6,7 @@ import Footer from "../components/Layout/Footer";
 const FAQPage = () => {
   return (
     <div>
-      <Header />
+      <Header activeHeading={5}/>
       <Faq />
       <Footer />
     </div>

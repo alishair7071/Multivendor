@@ -1,15 +1,17 @@
 const express = require("express");
 const path = require("path");
 const router = express.Router();
-const User = require("../model/user.js");
-const { upload } = require("../multer.js");
-const ErrorHandler = require("../utils/ErrorHandler");
 const fs = require("fs");
 const sendMail = require("../utils/sendMail.js");
 const jwt = require("jsonwebtoken");
-const catchAsyncError = require("../middleware/catchAsyncError.js");
 const sendToken = require("../utils/jwtToken.js");
-const { isAuthenticated } = require("../middleware/auth.js");
+const { isAuthenticated, isSeller } = require("../middleware/auth.js");
+const { upload } = require("../multer.js");
+const Shop = require("../model/shop.js");
+const catchAsyncError = require("../middleware/catchAsyncError.js");
+const ErrorHandler = require("../utils/ErrorHandler.js");
+const sendShopToken = require("../utils/shopToken.js");
+
 
 //create activation token
 const createActivationToken = (user) => {
@@ -18,13 +20,13 @@ const createActivationToken = (user) => {
   });
 };
 
-router.post("/create-user", upload.single("file"), async (req, res, next) => {
+
+router.post("/create-shop", upload.single("file"), async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
-    const userEmail = await User.findOne({ email });
+    const { email } = req.body;
+    const sellerEmail = await Shop.findOne({email});
 
-
-    if (userEmail) {
+    if (sellerEmail) {
       const filename = req.file.filename;
       const filePath = `uploads/${filename}`;
       fs.unlink(filePath, (err) => {
@@ -42,26 +44,28 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
     const filename = req.file.filename;
     const fileUrl = path.join(filename);
 
-    const user = {
-      name: name,
+    const seller = {
+      shopName: req.body.shopName,
       email: email,
-      password: password,
+      password: req.body.password,
       avatar: fileUrl,
+      address: req.body.address,
+      phoneNumber: req.body.phoneNumber,
+      zipCode: req.body.zipCode,
     };
 
-    const activationToken = createActivationToken(user);
-
-    const activationUrl = `http://localhost:5173/activation/${activationToken}`;
+    const activationToken = createActivationToken(seller);
+    const activationUrl = `http://localhost:5173/seller/activation/${activationToken}`;
 
     try {
       await sendMail({
-        mail: user.email,
-        subject: "Activate your account",
-        message: `Hello ${user.name}, please click on the link to activate your account: ${activationUrl}`,
+        mail: seller.email,
+        subject: "Activate your Shop",
+        message: `Hello ${seller.shopName}, please click on the link to activate your shop: ${activationUrl}`,
       });
 
       res.status(201).json({
-        message: `Please check your email:- ${user.email} to confirm your account`,
+        message: `Please check your email:- ${seller.email} to confirm your shop`,
       });
     } catch (e) {
       return next(new ErrorHandler(e.message, 500));
@@ -71,7 +75,7 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
   }
 });
 
-//activate user
+//activate seller
 router.post(
   "/activation",
   catchAsyncError(async (req, res, next) => {
@@ -79,35 +83,38 @@ router.post(
       const { activation_token } = req.body;
       console.log(activation_token);
 
-      const newUser = jwt.verify(
+      const newSeller = jwt.verify(
         activation_token,
         process.env.ACTIVATION_SECRET
       );
 
-      if (!newUser) {
+      if (!newSeller) {
         console.log("user not verified");
         return next(new ErrorHandler("Inavlid Token", 400));
       }
 
-      const { name, email, password, avatar } = newUser;
-      const userEmail = await User.findOne({ email });
+      const { shopName, email, password, avatar, zipCode, address, phoneNumber } = newSeller;
+      const userEmail = await Shop.findOne({ email });
 
     if(userEmail){
       console.log("account already created");
       return next(new ErrorHandler("User Already Exists", 400));
     }
 
-      let createdUser = await User.create({
-        name,
+      let createdSeller = await Shop.create({
+        shopName,
         email,
         password,
         avatar,
+        zipCode,
+        address,
+        phoneNumber
       });
 
-      console.log(createdUser);
-      console.log(createdUser.email);
+      console.log(createdSeller);
+      console.log(createdSeller.email);
 
-      sendToken(createdUser, 201, res);
+      sendShopToken(createdSeller, 201, res);
     } catch (e) {
         console.log("catch error: "+e.message);
       return next(new ErrorHandler(e.message, 500));
@@ -116,8 +123,8 @@ router.post(
 );
 
 
-//login 
-router.post("/login-user", catchAsyncError(async (req, res, next)=>{
+//login seller
+router.post("/login-shop", catchAsyncError(async (req, res, next)=>{
 
   try{
 
@@ -127,7 +134,7 @@ router.post("/login-user", catchAsyncError(async (req, res, next)=>{
       return next(new ErrorHandler("Please provide all the fields", 400));
     }
 
-    const user= await User.findOne({email}).select("+password");
+    const user= await Shop.findOne({email}).select("+password");
 
     if(!user){
       return next(new ErrorHandler("User does not exists", 400));
@@ -139,7 +146,7 @@ router.post("/login-user", catchAsyncError(async (req, res, next)=>{
       return next(new ErrorHandler("Invalid Credentials!"));
     }
 
-    sendToken(user, 201, res);
+    sendShopToken(user, 201, res);
 
   }catch(e){
 
@@ -147,17 +154,17 @@ router.post("/login-user", catchAsyncError(async (req, res, next)=>{
 }))
 
 
-//loadUser
-router.get("/getuser", isAuthenticated, catchAsyncError(async (req, res, next)=>{
+//loadShop
+router.get("/getSeller", isSeller, catchAsyncError(async (req, res, next)=>{
   try{
-    const user= await User.findById(req.user.id);
-    if(!user){
+    const seller= await Shop.findById(req.seller._id);
+    if(!seller){
       return next(new ErrorHandler("User doesn't exists", 400));
     }
 
     res.status(200).json({
       success: true,
-      user
+      seller
     });
 
   }catch(e){
@@ -166,23 +173,7 @@ router.get("/getuser", isAuthenticated, catchAsyncError(async (req, res, next)=>
 }))
 
 
-//log-out
-router.get("/logout", isAuthenticated, catchAsyncError(async (req, res, next)=>{
-  try{
 
-    res.cookie("token", null, {
-      expires: new Date(Date.now()),
-      httpOnly: true
-    });
 
-    res.status(200).json({
-      success: true,
-      message: "Log out successful!"
-    });
-    
-  }catch (error) {
-    return next(new ErrorHandler(error.message, 500))    
-  }
-}))
 
 module.exports = router;

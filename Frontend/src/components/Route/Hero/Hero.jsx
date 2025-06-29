@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 const Hero = () => {
   return (
     <div
-      className={`relative min-h-[70vh] md:min-h-[88vh] w-full bg-no-repeat ${styles.noramlFlex}`}
+      className={`relative min-h-[70vh] pt-20 md:pt-0 md:min-h-[88vh] w-full bg-no-repeat ${styles.noramlFlex}`}
       style={{
         backgroundImage:
           "url(https://themes.rslahmed.dev/rafcart/assets/images/banner-2.jpg)",

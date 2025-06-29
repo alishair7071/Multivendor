@@ -29,8 +29,12 @@ const userSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    logOutUser: (state) =>{
+      state.user= null;
+      state.isAuthenticated= false;
+    }
   },
 });
 
 export const userReducer= userSlice.reducer;
-export const { LoadUserRequest, LoadUserSuccess, LoadUserFail, clearError}= userSlice.actions;
+export const { LoadUserRequest, LoadUserSuccess, LoadUserFail, clearError, logOutUser}= userSlice.actions;

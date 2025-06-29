@@ -6,6 +6,7 @@ import {
   LoadUserFail,
   clearError,
 } from "../reducers/user";
+import { LoadSellerFail, LoadSellerRequest, LoadSellerSuccess } from "../reducers/seller";
 
 //loaduser
 export const loadUser = () => async (dispatch) => {
@@ -16,6 +17,20 @@ export const loadUser = () => async (dispatch) => {
     });
     dispatch(LoadUserSuccess(data.user));
   } catch (e) {
-    dispatch(LoadUserFail(e.response.data.message));
+    dispatch(LoadUserFail(e.message));
+  }
+};
+
+
+//load seller
+export const loadSeller = () => async (dispatch) => {
+  try {
+    dispatch(LoadSellerRequest());
+    const { data } = await axios.get(`${server}/shop/getSeller`, {
+      withCredentials: true,
+    });
+    dispatch(LoadSellerSuccess(data.seller));
+  } catch (e) {
+    dispatch(LoadSellerFail(e.message));
   }
 };
