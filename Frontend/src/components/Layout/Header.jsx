@@ -93,7 +93,7 @@ const Header = ({ activeHeading }) => {
           </div>
 
           <div className={`${styles.button}`}>
-            <Link to="/shop-create">
+            <Link to="/shop-login">
             <h1 className="text-[#fff] flex items-center">
               Become Seller <IoIosArrowForward className="ml-1" />
             </h1>
@@ -289,10 +289,11 @@ const Header = ({ activeHeading }) => {
 
               <Navbar active={activeHeading} />
               <div className={`${styles.button} ml-4`}>
-                <Link to="/seller"></Link>
+                <Link to="/shop-login">
                 <h1 className="text-[#fff] flex items-center">
                   Become Seller <IoIosArrowForward className="ml-1" />
                 </h1>
+                </Link>
               </div>
 
               <br />

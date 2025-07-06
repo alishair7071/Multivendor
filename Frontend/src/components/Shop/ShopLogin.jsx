@@ -1,54 +1,53 @@
 import React, { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import styles from "../../styles/styles";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { server } from "../../server";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { loadUser } from "../../redux/actions/user";
+import { loadSeller } from "../../redux/actions/user";
 
 const ShopLogin = () => {
-  const dispatch= useDispatch();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
-  const navigate= useNavigate();
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e)=>{
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     console.log("login called");
 
-    try{
-      const res= await fetch(`${server}/shop/login-shop`, {
+    try {
+      const res = await fetch(`${server}/shop/login-shop`, {
         method: "POST",
         headers: {
-          'Content-Type' : "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email,
-          password
+          password,
         }),
-        credentials: 'include'
+        credentials: "include",
       });
 
-      const data= await res.json();
-      if(data.success== true){
+      const data = await res.json();
+      if (data.success == true) {
         toast.success("Login Success!");
-        console.log("success");
-        window.location.reload(true);
+        dispatch(loadSeller());
+        navigate("/dashboard");
       }
-      if(data.success==false){
+      if (data.success == false) {
         toast.error(data.message);
-        console.log("error msg from server:  "+data.message)
+        console.log("error msg from server:  " + data.message);
       }
-
-    }catch(e){
-      console.log("catch Error: "+e.message);
+    } catch (e) {
+      console.log("catch Error: " + e.message);
       toast.error(e.message);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-green-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -134,24 +133,28 @@ const ShopLogin = () => {
                   href=".forgot-password"
                   className="font-medium text-blue-600 hover:text-blue-500"
                 >
-                Forgot your password?
+                  Forgot your password?
                 </a>
               </div>
             </div>
             <div>
-                <button type="submitt" 
+              <button
+                type="submitt"
                 className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent 
-                text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 hover:cursor-pointer">
-                    Submit
-                </button>
+                text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 hover:cursor-pointer"
+              >
+                Submit
+              </button>
             </div>
 
             <div className={`${styles.noramlFlex} w-full`}>
               <h4>Not have an account?</h4>
-              <Link to ="/shop-create" className="text-blue-600 pl-2 hover:text-blue-500 hover:cursor-pointer">
+              <Link
+                to="/shop-create"
+                className="text-blue-600 pl-2 hover:text-blue-500 hover:cursor-pointer"
+              >
                 Sign Up
               </Link>
-
             </div>
           </form>
         </div>
