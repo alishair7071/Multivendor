@@ -10,6 +10,8 @@ import { backend_url } from "../../../server";
 const DashboardHeader = () => {
   const { seller } = useSelector((state) => state.seller);
 
+
+
   return (
     <div className="w-full h-[80px] bg-white shadow sticky top-0 left-0 z-30 flex items-center justify-between px-4">
       <div>
@@ -30,7 +32,7 @@ const DashboardHeader = () => {
             />
           </Link>
 
-          <Link to="/dashboard-events"  className="md:block hidden">
+          <Link to="/dashboard-events" className="md:block hidden">
             <MdOutlineLocalOffer
               color="#555"
               size={30}
@@ -38,7 +40,7 @@ const DashboardHeader = () => {
             />
           </Link>
 
-          <Link to="/dashboard-products"  className="md:block hidden">
+          <Link to="/dashboard-products" className="md:block hidden">
             <FiShoppingBag
               color="#555"
               size={30}
@@ -46,11 +48,11 @@ const DashboardHeader = () => {
             />
           </Link>
 
-          <Link to="/dashboard-orders"  className="md:block hidden">
+          <Link to="/dashboard-orders" className="md:block hidden">
             <FiPackage color="#555" size={30} className="mx-5 cursor-pointer" />
           </Link>
 
-          <Link to="/dashboard-messages"  className="md:block hidden">
+          <Link to="/dashboard-messages" className="md:block hidden">
             <BiMessageSquareDetail
               color="#555"
               size={30}
@@ -58,7 +60,7 @@ const DashboardHeader = () => {
             />
           </Link>
 
-          <Link>
+          <Link to={`/shop/${seller._id}`}>
             <img
               src={`${backend_url}/${seller.avatar}`}
               alt=""
@@ -72,3 +74,5 @@ const DashboardHeader = () => {
 };
 
 export default DashboardHeader;
+
+

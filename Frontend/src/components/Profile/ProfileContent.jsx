@@ -26,6 +26,8 @@ const ProfileContent = ({ active }) => {
     e.preventDefault();
   };
 
+  console.log(`${backend_url}${user?.avatar}`);
+
   return (
     <div className="w-full">
       {/**Profile */}

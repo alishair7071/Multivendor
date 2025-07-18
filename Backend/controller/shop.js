@@ -173,6 +173,41 @@ router.get("/getSeller", isSeller, catchAsyncError(async (req, res, next)=>{
 }))
 
 
+//log-out shop
+router.get("/logout", catchAsyncError(async (req, res, next)=>{
+  try{
+
+    res.cookie("seller_token", null, {
+      expires: new Date(Date.now()),
+      httpOnly: true
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Log out successful!"
+    });
+    
+  }catch (error) {
+    return next(new ErrorHandler(error.message, 500))    
+  }
+}))
+
+
+// get shop info
+router.get("/get-shop-info/:id", catchAsyncError(async (req, res, next)=>{
+  try {
+      const shop= await Shop.findById(req.params.id);
+
+      res.status(201).json({
+        success: true,
+        shop
+      });
+    
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+}))
+
 
 
 

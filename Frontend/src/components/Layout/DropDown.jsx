@@ -19,7 +19,7 @@ const DropDown = ({categoriesData, setDropDown}) => {
             key={index}
             className={`${styles.noramlFlex}`}
             onClick={()=> submitHandle(i)}>
-                <img src={i.image_Url}
+                <img src={i.images}
                 style={{
                     width: "25px",
                     height: "25px",

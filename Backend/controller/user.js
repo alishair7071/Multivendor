@@ -77,7 +77,7 @@ router.post(
   catchAsyncError(async (req, res, next) => {
     try {
       const { activation_token } = req.body;
-      console.log(activation_token);
+
 
       const newUser = jwt.verify(
         activation_token,
@@ -104,8 +104,6 @@ router.post(
         avatar,
       });
 
-      console.log(createdUser);
-      console.log(createdUser.email);
 
       sendToken(createdUser, 201, res);
     } catch (e) {

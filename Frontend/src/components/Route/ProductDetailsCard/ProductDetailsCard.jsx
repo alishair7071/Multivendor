@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { RxCross1 } from "react-icons/rx";
 import styles from "../../../styles/styles";
 import { AiFillHeart, AiOutlineHeart, AiOutlineMessage, AiOutlineShoppingCart } from "react-icons/ai";
+import { Link } from "react-router-dom";
+import { backend_url } from "../../../server";
 
 const ProductDetailsCard = ({ setOpen, data }) => {
   const [count, setCount] = useState(1);
@@ -36,10 +38,10 @@ const ProductDetailsCard = ({ setOpen, data }) => {
 
             <div className="w-full block md:flex">
               <div className="w-full md:w-[50%]">
-                <img src={data.image_Url[0].url} alt="" />
-                <div className="flex">
+                <img src={`${backend_url}/${data && data.images[0]}`} alt="" />
+                <Link to={`/shop/preview/${data.shop._id}`} className="flex">
                   <img
-                    src={data.shop.shop_avatar.url}
+                    src={`${backend_url}/${data && data.shop.avatar}`}
                     alt=""
                     className="w-[50px] h-[50px] rounded-full mr-2"
                   />
@@ -49,7 +51,7 @@ const ProductDetailsCard = ({ setOpen, data }) => {
                       ({data.shop.ratings}) Ratings
                     </h5>
                   </div>
-                </div>
+                </Link>
 
                 <div
                   className={`${styles.button} bg-[#000] mt-4 h-11`}

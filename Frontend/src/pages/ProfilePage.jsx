@@ -11,6 +11,8 @@ const ProfilePage = () => {
   const { user, isAuthenticated } = useSelector((state) => state.user);
   const navigate = useNavigate();
 
+  console.log("Profile page is renfered");
+
   return (
         <div>
           <Header />

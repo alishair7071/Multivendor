@@ -6,7 +6,7 @@ import animationData from "../../assets/animations/Animation - 1751484261981 (1)
 const Loader = () => {
 
     const defaultOptions= {
-        loop: false,
+        loop: true,
         autoplay: true,
         animationData: animationData,
         rendererSettings: {
