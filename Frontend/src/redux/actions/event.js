@@ -74,11 +74,10 @@ export const deleteEvent = (id) => async (dispatch) => {
 export const getAllEvents = () => async (dispatch) => {
   try {
 
-    console.log("enterd in try in getAllEvents")
     dispatch(getAlleventsRequest());
 
     const { data } = await axios.get(`${server}/event/get-all-events`);
-    console.log("allEvents: "+ data.events.length);
+
 
     dispatch(getAlleventsSuccess(data.events));
 

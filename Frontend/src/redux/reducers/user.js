@@ -28,12 +28,66 @@ const userSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
-    logOutUser: (state) =>{
-      state.user= null;
-      state.isAuthenticated= false;
-    }
+    logOutUser: (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+    },
+
+    //update user info
+    updateUserInfoRequest: (state) => {
+      state.loading = true;
+    },
+    updateUserInfoSuccess: (state, action) => {
+      state.loading = false;
+      state.user = action.payload;
+    },
+    updateUserInfoFail: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    //update user addresses
+    updateUserAddressesRequest: (state) => {
+      state.loading = true;
+    },
+    updateUserAddressesSuccess: (state, action) => {
+      state.loading = false;
+      state.user = action.payload;
+    },
+    updateUserAddressesFail: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    //delete user addresses
+    deleteUserAddressRequest: (state) => {
+      state.loading = true;
+    },
+    deleteUserAddressSuccess: (state, action) => {
+      state.loading = false;
+      state.user = action.payload;
+    },
+    deleteUserAddressFail: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
   },
 });
 
-export const userReducer= userSlice.reducer;
-export const { LoadUserRequest, LoadUserSuccess, LoadUserFail, clearError, logOutUser}= userSlice.actions;
+export const userReducer = userSlice.reducer;
+export const {
+  LoadUserRequest,
+  LoadUserSuccess,
+  LoadUserFail,
+  clearError,
+  logOutUser,
+  updateUserInfoRequest,
+  updateUserInfoSuccess,
+  updateUserInfoFail,
+  updateUserAddressesRequest,
+  updateUserAddressesSuccess,
+  updateUserAddressesFail,
+  deleteUserAddressRequest,
+  deleteUserAddressSuccess,
+  deleteUserAddressFail,
+} = userSlice.actions;

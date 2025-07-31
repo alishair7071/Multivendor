@@ -15,7 +15,7 @@ const ShopLoginPage = () => {
     useEffect(()=>{
   
       if(isSeller == true) {
-        navigate("/dashboard");
+        navigate("/dashboard" , { replace: true });
       }
   
     },[isSeller, isLoading]);

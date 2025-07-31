@@ -8,23 +8,24 @@ import SuggestedProduct from "../components/products/SuggestedProduct.jsx";
 import { useSelector } from "react-redux";
 
 const ProductDetailsPage = () => {
+  const { allProducts } = useSelector((state) => state.product);
 
-  const {allProducts}= useSelector((state)=> state.product);
-
-  const { name } = useParams();
+  const { id } = useParams();
   const [data, setData] = useState(null);
-  const productName = name.replace(/-/g, " ");
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
-    const data = allProducts && allProducts.find((i) => i.name == productName);
+  useEffect(() => {
+    const data = allProducts && allProducts.find((i) => i._id == id);
     setData(data);
-  }, [allProducts]);
+  }, [data?._id, allProducts, id]);
 
   return (
     <div>
       <Header />
-      <ProductDetails data={data}/>
+      <ProductDetails data={data} />
       {data && <SuggestedProduct data={data} />}
       <Footer />
     </div>

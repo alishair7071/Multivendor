@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
       },
       addressType:{
         type: String,
-      },
+      }
     }
   ],
   role:{

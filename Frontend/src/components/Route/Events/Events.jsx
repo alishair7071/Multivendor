@@ -6,8 +6,6 @@ import { useSelector } from "react-redux";
 const Events = () => {
   const { allEvents, isLoading } = useSelector((state) => state.event);
 
-  console.log(allEvents);
-
   return (
     <div>
       {!isLoading && (

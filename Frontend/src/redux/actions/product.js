@@ -48,7 +48,6 @@ export const getAllProductsShop = (id) => async (dispatch) => {
     const { data } = await axios.get(`${server}/product/get-all-products-shop/${id}`);
 
     dispatch(getAllProductsShopSuccess(data.products));
-    console.log(data);
     return data.success;
 
   } catch (error) {

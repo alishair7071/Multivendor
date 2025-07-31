@@ -10,6 +10,12 @@ import {
 import { backend_url } from "../../server";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllProductsShop } from "../../redux/actions/product";
+import {
+  addToWishlistFun,
+  removeFromWishlistFun,
+} from "../../redux/actions/wishlist";
+import { addToCartFun } from "../../redux/actions/cart";
+import { toast } from "react-toastify";
 
 const ProductDetails = ({ data }) => {
   const [count, setCount] = useState(1);
@@ -18,9 +24,17 @@ const ProductDetails = ({ data }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { products } = useSelector((state) => state.product);
+  const { wishlist } = useSelector((state) => state.wishlist);
+  const { cart } = useSelector((state) => state.cart);
 
   useEffect(() => {
     dispatch(getAllProductsShop(data?.shop._id));
+
+    if (wishlist && wishlist.find((item) => item._id === data && data._id)) {
+      setClick(true);
+    } else {
+      setClick(false);
+    }
   }, [dispatch, data]);
 
   const decrementCount = () => {
@@ -35,6 +49,33 @@ const ProductDetails = ({ data }) => {
 
   const handleMessageSubmit = () => {
     navigate("/inbox?conversation=afsaojfnauiwefnasfk");
+  };
+
+  const removeFromWishlistHandler = (data) => {
+    console.log("Removing from wishlist", data);
+    setClick(!click);
+    dispatch(removeFromWishlistFun(data));
+  };
+
+  const addToWishlistHandler = (data) => {
+    console.log("Adding to wishlist", data);
+    setClick(!click);
+    dispatch(addToWishlistFun(data));
+  };
+
+  const addToCartHandler = (id) => {
+    const isItemExist = cart && cart.find((i) => i._id == id);
+    if (isItemExist) {
+      toast.error("Item already in cart!");
+    } else {
+      if (data.stock < 1) {
+        toast.error("product stock limited!");
+      } else {
+        const cartData = { ...data, qty: count };
+        dispatch(addToCartFun(cartData));
+        toast.success("Item added to cart successfully!");
+      }
+    }
   };
 
   return (
@@ -114,7 +155,7 @@ const ProductDetails = ({ data }) => {
                       <AiFillHeart
                         size={22}
                         className="cursor-pointer"
-                        onClick={() => setClick(!click)}
+                        onClick={() => removeFromWishlistHandler(data)}
                         color={click ? "red" : "#333"}
                         title="Remove from wishlist"
                       />
@@ -122,7 +163,7 @@ const ProductDetails = ({ data }) => {
                       <AiOutlineHeart
                         size={22}
                         className="cursor-pointer"
-                        onClick={() => setClick(!click)}
+                        onClick={() => addToWishlistHandler(data)}
                         color={click ? "red" : "#333"}
                         title="Add to wishlist"
                       />
@@ -132,6 +173,7 @@ const ProductDetails = ({ data }) => {
 
                 <div
                   className={`${styles.button} !mt-6 !rounded !h-11 flex items-center`}
+                  onClick={() => addToCartHandler(data._id)}
                 >
                   <span className="flex items-center text-white">
                     Add to cart <AiOutlineShoppingCart className="ml-1" />
@@ -139,15 +181,19 @@ const ProductDetails = ({ data }) => {
                 </div>
 
                 <div className="flex items-center pt-8">
-                  <img
-                    src={`${backend_url}/${data?.shop?.avatar}`}
-                    className="w-[50px] h-[50px] rounded-full mr-2"
-                    alt=""
-                  />
+                  <Link to={`/shop/preview/${data?.shop._id}`}>
+                    <img
+                      src={`${backend_url}/${data?.shop?.avatar}`}
+                      className="w-[50px] h-[50px] rounded-full mr-2"
+                      alt=""
+                    />
+                  </Link>
                   <div className="pr-8">
-                    <h3 className={`${styles.shop_name} pt-1 pb-1`}>
-                      {data.shop.shopName}
-                    </h3>
+                    <Link to={`/shop/preview/${data?.shop._id}`}>
+                      <h3 className={`${styles.shop_name} pt-1 pb-1`}>
+                        {data.shop.shopName}
+                      </h3>
+                    </Link>
                     <h5 className="pb-3 text-[15px]">(4/5) Ratings</h5>
                   </div>
 
