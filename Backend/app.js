@@ -30,6 +30,7 @@ const product= require("./controller/product.js");
 const event= require("./controller/event.js");
 const coupon= require("./controller/coupounCode");
 const payment= require("./controller/payment.js");
+const order= require("./controller/order.js");
 
 
 app.use("/api/v2/user", user);
@@ -38,6 +39,7 @@ app.use("/api/v2/product", product);
 app.use("/api/v2/event", event);
 app.use("/api/v2/coupon", coupon);
 app.use("/api/v2/payment", payment);
+app.use("/api/v2/order", order);
 
 
 

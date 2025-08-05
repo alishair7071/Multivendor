@@ -24,6 +24,8 @@ const Checkout = () => {
   const paymentSubmit = () => {
     if (country === "" || city === "" || address1 === "" || zipCode === null) {
       toast.error("Please choose your delivery address");
+    }else if(cart.length == 0){
+      toast.error("No items in cart");
     } else {
       const shippingAddress = {
         country,
@@ -43,11 +45,9 @@ const Checkout = () => {
         user,
       };
 
-      console.log("orderData", orderData);
-
       //update local storage with latest ordered array
-      localStorage.setItem("latestOrder", JSON.stringify(orderData));
-      navigate("/payment");
+      //localStorage.setItem("latestOrder", JSON.stringify(orderData));
+      navigate("/payment", { state: { orderData } });
     }
   };
 

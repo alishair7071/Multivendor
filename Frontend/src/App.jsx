@@ -17,6 +17,8 @@ import {
   ShopLoginPage,
   CheckoutPage,
   PaymentPage,
+  OrderSuccessPage,
+  OrderDetailsPage,
 } from "./routes/Routes.js";
 
 import { ToastContainer, toast } from "react-toastify";
@@ -35,6 +37,8 @@ import {
   ShopAllEvents,
   ShopAllCoupouns,
   ShopPreviewPage,
+  ShopAllOrders,
+  ShopOrderDetails,
 } from "./routes/ShopRoutes.js";
 import SellerProtectedRoute from "./routes/ProtectedRoutes/SellerProtectedRoute.jsx";
 import { getAllProducts } from "./redux/actions/product.js";
@@ -63,8 +67,6 @@ function App() {
     dispatch(getAllEvents());
     getStripeApiKey();
   }, []);
-
-  console.log("Stripe API Key:", stripeApiKey);
 
   return (
     <BrowserRouter>
@@ -108,6 +110,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/order/success" element={<OrderSuccessPage />} />
 
         <Route
           path="/profile"
@@ -117,6 +120,16 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/user/order/:id"
+          element={
+            <ProtectedRoute>
+              <OrderDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="/shop/preview/:id" element={<ShopPreviewPage />} />
         {/**shop routes */}
         <Route path="/shop-create" element={<ShopCreatePage />} />
@@ -147,6 +160,25 @@ function App() {
             </SellerProtectedRoute>
           }
         />
+
+        <Route
+          path="/dashboard-orders"
+          element={
+            <SellerProtectedRoute>
+              <ShopAllOrders />
+            </SellerProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/order/:id"
+          element={
+            <SellerProtectedRoute>
+              <ShopOrderDetails />
+            </SellerProtectedRoute>
+          }
+        />
+
         <Route
           path="/dashboard-products"
           element={

@@ -20,6 +20,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { Country, State, City } from "country-state-city";
 import { RxCross1 } from "react-icons/rx";
+import { getAllOrdersUserFun } from "../../redux/actions/order.js";
 
 const ProfileContent = ({ active }) => {
   const { user, error } = useSelector((state) => state.user);
@@ -192,18 +193,17 @@ const ProfileContent = ({ active }) => {
 };
 
 const AllOrders = () => {
-  const orders = [
-    {
-      id: "asfkasjfanfljwafiw",
-      orderItems: [
-        {
-          name: "Iphone 14 Pro max",
-        },
-      ],
-      totalPrice: 120,
-      orderStatus: "processing",
-    },
-  ];
+
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.user);
+  const userId = user && user._id;
+  const { orders } = useSelector((state) => state.order);
+
+  useEffect(() => {
+    dispatch(getAllOrdersUserFun(userId));
+  }, [dispatch, userId]);
+
+  console.log("orders", orders);
 
   const columns = [
     { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
@@ -259,16 +259,16 @@ const AllOrders = () => {
   orders &&
     orders.forEach((item) => {
       row.push({
-        id: item.id,
-        itemsQty: item.orderItems.length,
+        id: item._id,
+        itemsQty: item.cart.length,
         total: "US$ " + item.totalPrice,
-        status: item.orderStatus,
+        status: item.status,
       });
     });
 
   return (
     <div className="pl-8 pt-1">
-      <DataGrid
+     <DataGrid
         rows={row}
         columns={columns}
         pageSize={10}
