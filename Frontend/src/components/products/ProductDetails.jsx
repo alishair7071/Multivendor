@@ -16,6 +16,7 @@ import {
 } from "../../redux/actions/wishlist";
 import { addToCartFun } from "../../redux/actions/cart";
 import { toast } from "react-toastify";
+import Ratings from "./Ratings";
 
 const ProductDetails = ({ data }) => {
   const [count, setCount] = useState(1);
@@ -77,6 +78,21 @@ const ProductDetails = ({ data }) => {
       }
     }
   };
+
+  const totalReviewsLength =
+    products &&
+    products.reduce((acc, product) => acc + product.reviews.length, 0);
+
+  const totalRatings =
+    products &&
+    products.reduce(
+      (acc, product) =>
+        acc + product.reviews.reduce((sum, review) => sum + review.rating, 0),
+      0
+    );
+
+  const averageRating =
+    totalReviewsLength > 0 ? totalRatings / totalReviewsLength : 0;
 
   return (
     <div className="bg-white mt-10">
@@ -194,7 +210,9 @@ const ProductDetails = ({ data }) => {
                         {data.shop.shopName}
                       </h3>
                     </Link>
-                    <h5 className="pb-3 text-[15px]">(4/5) Ratings</h5>
+                    <h5 className="pb-3 text-[15px]">
+                      {averageRating.toFixed(0)}/5 Ratings
+                    </h5>
                   </div>
 
                   <div
@@ -209,7 +227,12 @@ const ProductDetails = ({ data }) => {
               </div>
             </div>
           </div>
-          <ProductDetailsInfo data={data} totalProducts={products?.length} />
+          <ProductDetailsInfo
+            data={data}
+            totalProducts={products?.length}
+            totalReviewsLength={totalReviewsLength}
+            averageRating={averageRating}
+          />
           <br />
           <br />
         </div>
@@ -218,7 +241,12 @@ const ProductDetails = ({ data }) => {
   );
 };
 
-const ProductDetailsInfo = ({ data, totalProducts }) => {
+const ProductDetailsInfo = ({
+  data,
+  totalProducts,
+  totalReviewsLength,
+  averageRating,
+}) => {
   const [active, setActive] = useState(1);
 
   return (
@@ -267,8 +295,30 @@ const ProductDetailsInfo = ({ data, totalProducts }) => {
       ) : null}
 
       {active == 2 ? (
-        <div className="justify-center min-h-[40vh] flex items-center w-full">
-          <p>No Reviews yet!</p>
+        <div className="justify-center min-h-[40vh] flex flex-col items-center w-full overflow-y-scroll">
+          {data &&
+            data.reviews.map((item, index) => (
+              <div className="w-full flex my-2">
+                <img
+                  src={`${backend_url}/${item.user.avatar}`}
+                  alt=""
+                  className="w-[50px] h-[50px] rounded-full"
+                />
+                <div className="pl-2 ">
+                  <div className="w-full flex items-center">
+                    <h1 className="font-[500] mr-3">{item.user.name}</h1>
+                    <Ratings rating={data?.ratings} />
+                  </div>
+                  <p>{item.comment}</p>
+                </div>
+              </div>
+            ))}
+
+          <div className="w-full flex justify-center">
+            {data && data.reviews.length === 0 && (
+              <h5>No Reviews have for this product!</h5>
+            )}
+          </div>
         </div>
       ) : null}
 
@@ -284,7 +334,7 @@ const ProductDetailsInfo = ({ data, totalProducts }) => {
                 />
                 <div className="pl-3">
                   <h3 className={styles.shop_name}>{data.shop.shopName}</h3>
-                  <h5 className="pb-2 text-[15px]">(4/5) Ratings</h5>
+                  <h5 className="pb-2 text-[15px]">{averageRating.toFixed(0)}/5 Ratings</h5>
                 </div>
               </div>
             </Link>
@@ -303,7 +353,8 @@ const ProductDetailsInfo = ({ data, totalProducts }) => {
                 <span className="font-[500]">{totalProducts}</span>
               </h5>
               <h5 className="font-[600] pt-3">
-                Total Reviews: <span className="font-[500]">324</span>
+                Total Reviews:{" "}
+                <span className="font-[500]">{totalReviewsLength}</span>
               </h5>
               <Link to="/">
                 <div

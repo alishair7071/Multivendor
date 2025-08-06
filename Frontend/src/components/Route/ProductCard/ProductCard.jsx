@@ -18,6 +18,7 @@ import {
 } from "../../../redux/actions/wishlist.js";
 import { toast } from "react-toastify";
 import { addToCartFun } from "../../../redux/actions/cart.js";
+import Ratings from "../../products/Ratings.jsx";
 
 const ProductCard = ({ data }) => {
   const [click, setClick] = useState(false);
@@ -57,7 +58,6 @@ const ProductCard = ({ data }) => {
         toast.success("Item added to cart successfully!");
       }
     }
-    
   };
 
   return (
@@ -80,37 +80,16 @@ const ProductCard = ({ data }) => {
             {data.name.length > 40 ? data.name.slice(0, 40) + "..." : data.name}
           </h4>
           <div className="flex">
-            <AiFillStar
-              className="mr-2 cursor-pointer"
-              color="#F6BA00"
-              size={20}
-            />
-            <AiFillStar
-              className="mr-2 cursor-pointer"
-              color="#F6BA00"
-              size={20}
-            />
-            <AiFillStar
-              className="mr-2 cursor-pointer"
-              color="#F6BA00"
-              size={20}
-            />
-            <AiFillStar
-              className="mr-2 cursor-pointer"
-              color="#F6BA00"
-              size={20}
-            />
-            <AiOutlineStar
-              className="mr-2 cursor-pointer"
-              color="#F6BA00"
-              size={20}
-            />
+            <Ratings rating={data?.ratings} />
           </div>
 
           <div className="py-2 flex items-center justify-between">
             <div className="flex">
               <h5 className={`${styles.productDiscountPrice}`}>
-                {data.discountPrice === 0 ? data.totalPrice : data.discountPrice}$
+                {data.discountPrice === 0
+                  ? data.totalPrice
+                  : data.discountPrice}
+                $
               </h5>
               <h4 className={`${styles.price}`}>
                 {data.originalPrice ? data.originalPrice + " $" : null}

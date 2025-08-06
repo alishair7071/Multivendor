@@ -19,6 +19,7 @@ import {
   PaymentPage,
   OrderSuccessPage,
   OrderDetailsPage,
+  TrackOrderPage,
 } from "./routes/Routes.js";
 
 import { ToastContainer, toast } from "react-toastify";
@@ -39,6 +40,7 @@ import {
   ShopPreviewPage,
   ShopAllOrders,
   ShopOrderDetails,
+  ShopAllRefunds,
 } from "./routes/ShopRoutes.js";
 import SellerProtectedRoute from "./routes/ProtectedRoutes/SellerProtectedRoute.jsx";
 import { getAllProducts } from "./redux/actions/product.js";
@@ -130,6 +132,15 @@ function App() {
           }
         />
 
+        <Route
+          path="/user/track/order/:id"
+          element={
+            <ProtectedRoute>
+              <TrackOrderPage />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="/shop/preview/:id" element={<ShopPreviewPage />} />
         {/**shop routes */}
         <Route path="/shop-create" element={<ShopCreatePage />} />
@@ -166,6 +177,16 @@ function App() {
           element={
             <SellerProtectedRoute>
               <ShopAllOrders />
+            </SellerProtectedRoute>
+          }
+        />
+
+        
+        <Route
+          path="/dashboard-refunds"
+          element={
+            <SellerProtectedRoute>
+              <ShopAllRefunds />
             </SellerProtectedRoute>
           }
         />

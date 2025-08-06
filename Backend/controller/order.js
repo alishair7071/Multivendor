@@ -90,8 +90,6 @@ router.get(
   })
 );
 
-
-
 // update order status for seller
 router.put(
   "/update-order-status/:id",
@@ -114,7 +112,7 @@ router.put(
       if (req.body.status === "Delivered") {
         order.deliveredAt = Date.now();
         order.paymentInfo.status = "Succeeded";
-        const serviceCharge = order.totalPrice * .10;
+        const serviceCharge = order.totalPrice * 0.1;
         await updateSellerInfo(order.totalPrice - serviceCharge);
       }
 
@@ -137,11 +135,37 @@ router.put(
       async function updateSellerInfo(amount) {
         const seller = await Shop.findById(req.seller._id);
         console.log(seller);
-        
+
         seller.availableBalance = amount;
 
         await seller.save({ validateBeforeSave: false });
       }
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
+
+// give a refund ----- user
+router.put(
+  "/order-refund/:id",
+  catchAsyncError(async (req, res, next) => {
+    try {
+      const order = await Order.findById(req.params.id);
+
+      if (!order) {
+        return next(new ErrorHandler("Order not found with this id", 400));
+      }
+
+      order.status = req.body.status;
+
+      await order.save({ validateBeforeSave: false });
+
+      res.status(200).json({
+        success: true,
+        order,
+        message: "Order Refund Request successfully!",
+      });
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
     }

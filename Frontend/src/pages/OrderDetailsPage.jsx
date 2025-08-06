@@ -1,7 +1,7 @@
 import React from 'react'
-import Header from '../Layout/Header'
-import Footer from '../Layout/Footer'
-import UserOrderDetails from "../../components/UserOrderDetails.jsx";
+import Header from '../components/Layout/Header.jsx'
+import Footer from '../components/Layout/Footer.jsx'
+import UserOrderDetails from "../components/UserOrderDetails.jsx";
 
 const OrderDetailsPage = () => {
   return (
