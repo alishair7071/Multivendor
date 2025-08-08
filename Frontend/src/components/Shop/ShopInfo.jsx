@@ -4,29 +4,50 @@ import { server } from "../../server";
 import { backend_url } from "../../server";
 import styles from "../../styles/styles";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { getAllProductsShop } from "../../redux/actions/product";
 
 const ShopInfo = ({ isOwner }) => {
-
-  const [data, setData]= useState({});
+  const { seller } = useSelector((state) => state.seller);
+  const dispatch = useDispatch();
+  const { products } = useSelector((state) => state.product);
+  const [data, setData] = useState({});
   const { id } = useParams();
 
   useEffect(() => {
     console.log("entered in useEffect");
-    axios.get(`${server}/shop/get-shop-info/${id}`).then((res)=>{
-      setData(res.data.shop);
-    }).catch((error)=>{
-      console.log(error);
-    })
+    dispatch(getAllProductsShop(id));
+    axios
+      .get(`${server}/shop/get-shop-info/${id}`)
+      .then((res) => {
+        setData(res.data.shop);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }, []);
 
-  console.log(data);
+  console.log("data", data);
 
   const logoutHandler = async () => {
     await axios.get(`${server}/shop/logout`, { withCredentials: true });
     window.location.reload();
   };
+
+  const totalReviewsLength =
+    products &&
+    products.reduce((acc, product) => acc + product.reviews.length, 0);
+
+  const totalRatings =
+    products &&
+    products.reduce(
+      (acc, product) =>
+        acc + product.reviews.reduce((sum, review) => sum + review.rating, 0),
+      0
+    );
+
+  const averageRating =
+    totalReviewsLength > 0 ? totalRatings / totalReviewsLength : 0;
 
   return (
     <div>
@@ -55,24 +76,28 @@ const ShopInfo = ({ isOwner }) => {
 
       <div className="p-3">
         <h5 className="font-[600]">Total Products</h5>
-        <h4 className="text-[#000000a6]">10</h4>
+        <h4 className="text-[#000000a6]">{products && products.length}</h4>
       </div>
 
       <div className="p-3">
         <h5 className="font-[600]">Shop Ratings</h5>
-        <h4 className="text-[#000000a6]">4/5</h4>
+        <h4 className="text-[#000000a6]">{averageRating.toFixed(0)}/5</h4>
       </div>
 
       <div className="p-3">
         <h5 className="font-[600]">Joined On</h5>
-      <h4 className="text-[#000000a6]">{data.createdAt?.slice(0, 10)}</h4>
+        <h4 className="text-[#000000a6]">{data.createdAt?.slice(0, 10)}</h4>
       </div>
 
       {isOwner && (
         <div className="py-3 px-4">
-          <div className={`${styles.button} !w-full !h-[42px] !rounded-[5px]`}>
-            <span className="text-white">Edit Shop</span>
-          </div>
+          <Link to={"/settings"}>
+            <div
+              className={`${styles.button} !w-full !h-[42px] !rounded-[5px]`}
+            >
+              <span className="text-white">Edit Shop</span>
+            </div>
+          </Link>
           <div
             className={`${styles.button} !w-full !h-[42px] !rounded-[5px]`}
             onClick={logoutHandler}

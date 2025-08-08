@@ -41,6 +41,8 @@ import {
   ShopAllOrders,
   ShopOrderDetails,
   ShopAllRefunds,
+  ShopSettingsPage,
+  ShopWithdrawMoneyPage,
 } from "./routes/ShopRoutes.js";
 import SellerProtectedRoute from "./routes/ProtectedRoutes/SellerProtectedRoute.jsx";
 import { getAllProducts } from "./redux/actions/product.js";
@@ -155,6 +157,15 @@ function App() {
         />
 
         <Route
+          path="/settings"
+          element={
+            <SellerProtectedRoute>
+              <ShopSettingsPage />
+            </SellerProtectedRoute>
+          }
+        />
+
+        <Route
           path="/dashboard"
           element={
             <SellerProtectedRoute>
@@ -181,7 +192,6 @@ function App() {
           }
         />
 
-        
         <Route
           path="/dashboard-refunds"
           element={
@@ -235,6 +245,18 @@ function App() {
             </SellerProtectedRoute>
           }
         />
+
+
+        <Route
+          path="/dashboard-withdraw-money"
+          element={
+            <SellerProtectedRoute>
+              <ShopWithdrawMoneyPage />
+            </SellerProtectedRoute>
+          }
+        />
+
+
       </Routes>
       <ToastContainer
         position="bottom-center"

@@ -12,7 +12,6 @@ const catchAsyncError = require("../middleware/catchAsyncError.js");
 const ErrorHandler = require("../utils/ErrorHandler.js");
 const sendShopToken = require("../utils/shopToken.js");
 
-
 //create activation token
 const createActivationToken = (user) => {
   return jwt.sign(user, process.env.ACTIVATION_SECRET, {
@@ -20,11 +19,10 @@ const createActivationToken = (user) => {
   });
 };
 
-
 router.post("/create-shop", upload.single("file"), async (req, res, next) => {
   try {
     const { email } = req.body;
-    const sellerEmail = await Shop.findOne({email});
+    const sellerEmail = await Shop.findOne({ email });
 
     if (sellerEmail) {
       const filename = req.file.filename;
@@ -93,13 +91,21 @@ router.post(
         return next(new ErrorHandler("Inavlid Token", 400));
       }
 
-      const { shopName, email, password, avatar, zipCode, address, phoneNumber } = newSeller;
+      const {
+        shopName,
+        email,
+        password,
+        avatar,
+        zipCode,
+        address,
+        phoneNumber,
+      } = newSeller;
       const userEmail = await Shop.findOne({ email });
 
-    if(userEmail){
-      console.log("account already created");
-      return next(new ErrorHandler("User Already Exists", 400));
-    }
+      if (userEmail) {
+        console.log("account already created");
+        return next(new ErrorHandler("User Already Exists", 400));
+      }
 
       let createdSeller = await Shop.create({
         shopName,
@@ -108,7 +114,7 @@ router.post(
         avatar,
         zipCode,
         address,
-        phoneNumber
+        phoneNumber,
       });
 
       console.log(createdSeller);
@@ -116,99 +122,168 @@ router.post(
 
       sendShopToken(createdSeller, 201, res);
     } catch (e) {
-        console.log("catch error: "+e.message);
+      console.log("catch error: " + e.message);
       return next(new ErrorHandler(e.message, 500));
     }
   })
 );
 
-
 //login seller
-router.post("/login-shop", catchAsyncError(async (req, res, next)=>{
+router.post(
+  "/login-shop",
+  catchAsyncError(async (req, res, next) => {
+    try {
+      console.log("login called");
+      const { email, password } = req.body;
+      if (!email || !password) {
+        return next(new ErrorHandler("Please provide all the fields", 400));
+      }
 
-  try{
+      const user = await Shop.findOne({ email }).select("+password");
 
-    console.log("login called");
-    const { email, password}= req.body;
-    if(!email || !password){
-      return next(new ErrorHandler("Please provide all the fields", 400));
-    }
+      if (!user) {
+        return next(new ErrorHandler("User does not exists", 400));
+      }
 
-    const user= await Shop.findOne({email}).select("+password");
+      const isPasswordValid = await user.comparePassword(password);
 
-    if(!user){
-      return next(new ErrorHandler("User does not exists", 400));
-    }
+      if (!isPasswordValid) {
+        return next(new ErrorHandler("Invalid Credentials!"));
+      }
 
-    const isPasswordValid= await user.comparePassword(password);
-
-    if(!isPasswordValid){
-      return next(new ErrorHandler("Invalid Credentials!"));
-    }
-
-    sendShopToken(user, 201, res);
-
-  }catch(e){
-
-  }
-}))
-
+      sendShopToken(user, 201, res);
+    } catch (e) {}
+  })
+);
 
 //loadShop
-router.get("/getSeller", isSeller, catchAsyncError(async (req, res, next)=>{
-  try{
-    const seller= await Shop.findById(req.seller._id);
-    if(!seller){
-      return next(new ErrorHandler("User doesn't exists", 400));
+router.get(
+  "/getSeller",
+  isSeller,
+  catchAsyncError(async (req, res, next) => {
+    try {
+      const seller = await Shop.findById(req.seller._id);
+      if (!seller) {
+        return next(new ErrorHandler("User doesn't exists", 400));
+      }
+
+      res.status(200).json({
+        success: true,
+        seller,
+      });
+    } catch (e) {
+      return next(new ErrorHandler(e.message, 500));
     }
-
-    res.status(200).json({
-      success: true,
-      seller
-    });
-
-  }catch(e){
-    return next(new ErrorHandler(e.message, 500));
-  }
-}))
-
+  })
+);
 
 //log-out shop
-router.get("/logout", catchAsyncError(async (req, res, next)=>{
-  try{
+router.get(
+  "/logout",
+  catchAsyncError(async (req, res, next) => {
+    try {
+      res.cookie("seller_token", null, {
+        expires: new Date(Date.now()),
+        httpOnly: true,
+      });
 
-    res.cookie("seller_token", null, {
-      expires: new Date(Date.now()),
-      httpOnly: true
-    });
-
-    res.status(200).json({
-      success: true,
-      message: "Log out successful!"
-    });
-    
-  }catch (error) {
-    return next(new ErrorHandler(error.message, 500))    
-  }
-}))
-
+      res.status(200).json({
+        success: true,
+        message: "Log out successful!",
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
 
 // get shop info
-router.get("/get-shop-info/:id", catchAsyncError(async (req, res, next)=>{
-  try {
-      const shop= await Shop.findById(req.params.id);
+router.get(
+  "/get-shop-info/:id",
+  catchAsyncError(async (req, res, next) => {
+    try {
+      const shop = await Shop.findById(req.params.id);
 
       res.status(201).json({
         success: true,
-        shop
+        shop,
       });
-    
-  } catch (error) {
-    return next(new ErrorHandler(error.message, 500));
-  }
-}))
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
+
+// update shop profile picture
+router.put(
+  "/update-shop-avatar",
+  isSeller,
+  upload.single("image"),
+  catchAsyncError(async (req, res, next) => {
+    try {
+      let existsSeller = await Shop.findById(req.seller._id);
+
+      if (!existsSeller) {
+        return next(new ErrorHandler("User does not exists", 400));
+      }
+
+      const existAvatarPath = `uploads/${existsSeller.avatar}`;
+
+      if (fs.existsSync(existAvatarPath)) {
+        fs.unlinkSync(existAvatarPath); // ✅ deletes synchronously and safely
+      }
+
+      console.log(req.seller);
+
+      const fileUrl = req.file.filename;
+      const seller = await Shop.findByIdAndUpdate(
+        req.seller._id,
+        { avatar: fileUrl },
+        { new: true }
+      );
+
+      res.status(200).json({
+        success: true,
+        seller: seller,
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
 
 
+// update seller info
+router.put(
+  "/update-seller-info",
+  isSeller,
+  catchAsyncError(async (req, res, next) => {
+    try {
+      const { shopName, description, address, phoneNumber, zipCode } = req.body;
+
+      const shop = await Shop.findOne(req.seller._id);
+
+      if (!shop) {
+        return next(new ErrorHandler("User not found", 400));
+      }
+
+      shop.shopName = shopName;
+      shop.description = description;
+      shop.address = address;
+      shop.phoneNumber = phoneNumber;
+      shop.zipCode = zipCode;
+
+      await shop.save();
+
+      res.status(201).json({
+        success: true,
+        shop,
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
 
 
 module.exports = router;

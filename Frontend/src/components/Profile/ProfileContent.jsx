@@ -57,7 +57,8 @@ const ProfileContent = ({ active }) => {
         withCredentials: true,
       })
       .then((res) => {
-        window.location.reload();
+        toast.success("User avatar updated successfully!");
+        dispatch(loadUser());
       })
       .catch((err) => {
         toast.error(err.response.data.message || "Failed to update avatar");

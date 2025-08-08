@@ -20,7 +20,7 @@ import { toast } from "react-toastify";
 import { addToCartFun } from "../../../redux/actions/cart.js";
 import Ratings from "../../products/Ratings.jsx";
 
-const ProductCard = ({ data }) => {
+const ProductCard = ({ data, isEvent }) => {
   const [click, setClick] = useState(false);
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
@@ -64,7 +64,7 @@ const ProductCard = ({ data }) => {
     <>
       <div className="w-full h-[370px] bg-white rounded-lg shadow-sm p-3 relative cursor-pointer">
         <div className="flex justify-end flex-col"> </div>
-        <Link to={`/product/${data._id}`}>
+        <Link to={ isEvent ? `/product/${data._id}?isEvent=true` : `/product/${data._id}`}>
           <img
             src={`${backend_url}/${data.images[0]}`}
             className="w-full h-[170px] object-contain"
@@ -75,7 +75,7 @@ const ProductCard = ({ data }) => {
         <Link to={`/shop/preview/${data?.shop._id}`}>
           <h5 className={`${styles.shop_name}`}>{data.shop.shopName}</h5>
         </Link>
-        <Link to={`/product/${data._id}`}>
+        <Link to={isEvent ? `/product/${data._id}?isEvent=true` : `/product/${data._id}`}>
           <h4 className="pb-3 font-[500]">
             {data.name.length > 40 ? data.name.slice(0, 40) + "..." : data.name}
           </h4>
