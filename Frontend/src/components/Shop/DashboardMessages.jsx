@@ -1,0 +1,359 @@
+import React from "react";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { backend_url, server } from "../../server";
+import axios from "axios";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AiOutlineArrowRight, AiOutlineSend } from "react-icons/ai";
+import styles from "../../styles/styles";
+import { TfiGallery } from "react-icons/tfi";
+import socketIO from "socket.io-client";
+import { format } from "timeago.js";
+const ENDPOINT = "http://localhost:4000/";
+const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
+
+const DashboardMessages = () => {
+  const { seller } = useSelector((state) => state.seller);
+  const [conversations, setConversations] = useState([]);
+  const [active, setActive] = useState(-1);
+  const [open, setOpen] = useState(false);
+  const [arrivalMessage, setArrivalMessage] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [currentChat, setCurrentChat] = useState(null);
+  const [newMessage, setNewMessage] = useState("");
+  const [userData, setUserData] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState([]);
+  const [activeStatus, setActiveStatus] = useState(false);
+
+  useEffect(() => {
+    socketId.on("getMessage", (data) => {
+      setArrivalMessage({
+        sender: data.senderId,
+        text: data.text,
+        createdAt: Date.now(),
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    arrivalMessage &&
+      currentChat?.members.includes(arrivalMessage.sender) &&
+      setMessages((prev) => [...prev, arrivalMessage]);
+  }, [arrivalMessage, currentChat]);
+
+  useEffect(() => {
+    axios
+      .get(`${server}/conversation/get-all-conversation-seller/${seller._id}`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        setConversations(res.data.conversations);
+      })
+      .catch((error) => {
+        console.log("error: " + error);
+      });
+  }, [seller, messages]);
+
+  useEffect(() => {
+    if (seller) {
+      const userId = seller?._id;
+      socketId.emit("addUser", userId);
+      socketId.on("getUsers", (data) => {
+        setOnlineUsers(data);
+      });
+    }
+  }, []);
+
+  const checkOnline = (chat) => {
+    const chatMembers = chat.members.find((member) => member !== seller?._id);
+    const online =
+      onlineUsers && onlineUsers.find((user) => user.userId === chatMembers);
+    //setActiveStatus(online ? true : false);
+    return online ? true : false;
+  };
+
+  useEffect(() => {
+    const getMessages = async () => {
+      try {
+        const response = await axios.get(
+          `${server}/message/get-all-messages/${currentChat?._id}`
+        );
+        setMessages(response.data.messages);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getMessages();
+  }, [currentChat]);
+
+  const sendMessageHandler = async (e) => {
+    e.preventDefault();
+
+    const receiverId = currentChat.members.find(
+      (member) => member._id !== seller._id
+    );
+
+    const message = {
+      sender: seller._id,
+      text: newMessage,
+      receiver: receiverId,
+      conversationId: currentChat._id,
+    };
+
+    console.log(receiverId);
+
+    socketId.emit("sendMessage", {
+      senderId: seller._id,
+      receiverId: receiverId,
+      text: newMessage,
+    });
+
+    try {
+      if (newMessage !== "") {
+        await axios
+          .post(`${server}/message/create-new-message`, message)
+          .then((res) => {
+            setMessages([...messages, res.data.message]);
+            updateLastMessage();
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const updateLastMessage = async () => {
+    socketId.emit("updateLastMessage", {
+      lastMessage: newMessage,
+      lastMessageId: seller._id,
+    });
+
+    await axios
+      .put(`${server}/conversation/update-last-message/${currentChat._id}`, {
+        lastMessage: newMessage,
+        lastMessageId: seller._id,
+      })
+      .then((res) => {
+        console.log(res.data.conversation);
+        setNewMessage("");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  return (
+    <div className="w-[90%] bg-amber-50 m-5 h-[85vh] overflow-y-scroll rounded">
+      {!open && (
+        <>
+          <h1 className="text-center text-[30px] py-3 font-Poppins">
+            All Messages
+          </h1>
+          {/**all messages list */}
+
+          {conversations &&
+            conversations.map((item, index) => (
+              <MessageList
+                key={index}
+                data={item}
+                index={index}
+                active={active}
+                setActive={setActive}
+                setOpen={setOpen}
+                setCurrentChat={setCurrentChat}
+                me={seller._id}
+                userData={userData}
+                setUserData={setUserData}
+                online={checkOnline(item)}
+              />
+            ))}
+        </>
+      )}
+
+      {open && (
+        <SellerInbox
+          setOpen={setOpen}
+          newMessage={newMessage}
+          setNewMessage={setNewMessage}
+          sendMessageHandler={sendMessageHandler}
+          messages={messages}
+          sellerId={seller._id}
+          userData={userData}
+          currentChat={currentChat}
+          checkOnline= {checkOnline}
+        />
+      )}
+    </div>
+  );
+};
+
+const MessageList = ({
+  data,
+  index,
+  active,
+  setActive,
+  setOpen,
+  setCurrentChat,
+  me,
+  userData,
+  setUserData,
+  online,
+}) => {
+  const navigate = useNavigate();
+  const [user, setUser]= useState([]);
+
+  const handleClick = (id) => {
+    navigate(`?${id}`);
+  };
+
+  useEffect(() => {
+    const userId = data.members.find((user) => user != me);
+
+    const getUser = async () => {
+      try {
+        const res = await axios.get(`${server}/user/user-info/${userId}`);
+        setUserData(res.data.user);
+        setUser(res.data.user);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getUser();
+  }, [me, data]);
+
+  return (
+
+    <div
+      className={`w-full flex p-3 px-3 ${
+        active == index ? "bg-[#00000010]" : "bg-transparent"
+      } cursor-pointer`}
+      onClick={() => {
+        setOpen(true);
+        setActive(index);
+        handleClick(data._id);
+        setCurrentChat(data);
+        setUserData(user)
+      }}
+    >
+      <div className="relative">
+        <img
+          src={`${backend_url}/${user?.avatar}`}
+          alt=""
+          className="w-[50px] h-[50px] rounded-full"
+        />
+        {online ? (
+          <div className="w-[12px] h-[12px] rounded-full bg-green-400 absolute top-[2px] right-[2px]" />
+        ) : (
+          <div className="w-[12px] h-[12px] rounded-full bg-neutral-200 absolute top-[2px] right-[2px]" />
+        )}
+      </div>
+      <div className="pl-3">
+        <h1 className="text-[18px]">{user && user.name}</h1>
+        <p className="text-[16px] text-[#000c]">
+          {data.lastMessageId !== user?._id
+            ? "You: "
+            : user?.name.split(" ")[0] + ": "}
+          {data?.lastMessage}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const SellerInbox = ({
+  setOpen,
+  newMessage,
+  setNewMessage,
+  sendMessageHandler,
+  messages,
+  sellerId,
+  userData,
+  currentChat,
+  checkOnline
+}) => {
+  return (
+    <div className="w-full min-h-full flex flex-col justify-between">
+      {/**message header */}
+      <div className="flex w-full p-3 items-center justify-between bg-slate-200">
+        <div className="flex">
+          <img
+            src={`${backend_url}/${userData?.avatar}`}
+            alt=""
+            className="w-[60px] h-[60px] rounded-full"
+          />
+          <div className="pl-3">
+            <h1 className="text-[18px] font-[600]">{userData?.name}</h1>
+            {checkOnline(currentChat) && <h1>Active now</h1>}
+          </div>
+        </div>
+        <AiOutlineArrowRight
+          size={20}
+          className="cursor-pointer"
+          onClick={() => setOpen(false)}
+        />
+      </div>
+
+      {/**messages */}
+      <div className="px-3 h-[65vh] py-3 overflow-y-scroll">
+        {messages &&
+          messages.map((item, index) => (
+            <div
+              className={`w-full flex my-2 ${
+                sellerId == item.sender ? "justify-end" : "justify-start"
+              }`}
+            >
+              {sellerId !== item.sender && (
+                <img
+                  src="http://localhost:8000//download-1754549336600-17.png"
+                  className="rounded-full w-[40px] h-[40px] mr-3"
+                />
+              )}
+              <div>
+                <div className="max-w-[50vh] p-2 h-min rounded bg-[#38c776] text-white">
+                  <p>{item.text}</p>
+                </div>
+                <p className="text-end text-[12px] text-[#000000d3]">
+                  {format(item.createdAt)}
+                </p>
+              </div>
+            </div>
+          ))}
+      </div>
+
+      {/**send message input */}
+      <form
+        onSubmit={sendMessageHandler}
+        aria-required={true}
+        className="relative p-3 w-full flex items-center justify-between"
+      >
+        <div className="w-[3%]">
+          <TfiGallery size={20} className="cursor-pointer" />
+        </div>
+        <div className="w-[97%]">
+          <input
+            type="text"
+            required
+            placeholder="Enter your message..."
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            className={`${styles.input}`}
+          />
+          <input type="submit" value="Send" id="send" className="hidden" />
+          <label htmlFor="send">
+            <AiOutlineSend
+              size={20}
+              className="absolute top-5 right-4 cursor-pointer"
+            />
+          </label>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default DashboardMessages;

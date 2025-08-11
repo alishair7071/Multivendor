@@ -20,6 +20,7 @@ import {
   OrderSuccessPage,
   OrderDetailsPage,
   TrackOrderPage,
+  UserInbox
 } from "./routes/Routes.js";
 
 import { ToastContainer, toast } from "react-toastify";
@@ -43,6 +44,7 @@ import {
   ShopAllRefunds,
   ShopSettingsPage,
   ShopWithdrawMoneyPage,
+  ShopInboxPage
 } from "./routes/ShopRoutes.js";
 import SellerProtectedRoute from "./routes/ProtectedRoutes/SellerProtectedRoute.jsx";
 import { getAllProducts } from "./redux/actions/product.js";
@@ -121,6 +123,16 @@ function App() {
           element={
             <ProtectedRoute>
               <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
+        
+        <Route
+          path="/inbox"
+          element={
+            <ProtectedRoute>
+              <UserInbox />
             </ProtectedRoute>
           }
         />
@@ -246,7 +258,6 @@ function App() {
           }
         />
 
-
         <Route
           path="/dashboard-withdraw-money"
           element={
@@ -256,7 +267,14 @@ function App() {
           }
         />
 
-
+        <Route
+          path="/dashboard-messages"
+          element={
+            <SellerProtectedRoute>
+              <ShopInboxPage />
+            </SellerProtectedRoute>
+          }
+        />
       </Routes>
       <ToastContainer
         position="bottom-center"

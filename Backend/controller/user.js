@@ -3,7 +3,7 @@ const path = require("path");
 const router = express.Router();
 const User = require("../model/user.js");
 const { upload } = require("../multer.js");
-const ErrorHandler = require("../utils/ErrorHandler");
+const ErrorHandler = require("../utils/ErrorHandler.js");
 const fs = require("fs");
 const sendMail = require("../utils/sendMail.js");
 const jwt = require("jsonwebtoken");
@@ -312,7 +312,7 @@ router.delete(
         { _id: req.user.id },
         { $pull: { addresses: { _id: addressId } } }
       );
-      const updatedUser= await User.findById(req.user.id);
+      const updatedUser = await User.findById(req.user.id);
       res.status(200).json({
         success: true,
         updatedUser,
@@ -322,7 +322,6 @@ router.delete(
     }
   })
 );
-
 
 //change password
 router.put(
@@ -342,7 +341,9 @@ router.put(
       }
 
       if (newPassword !== confirmPassword) {
-        return next(new ErrorHandler("new and confirm password must be same", 400));
+        return next(
+          new ErrorHandler("new and confirm password must be same", 400)
+        );
       }
 
       user.password = newPassword;
@@ -354,6 +355,23 @@ router.put(
         message: "Password updated successfully",
       });
     } catch (e) {
+      return next(new ErrorHandler(e.message, 500));
+    }
+  })
+);
+
+//get user information with user id
+router.get(
+  "/user-info/:id",
+  catchAsyncError(async (req, res, next) => {
+    try {
+      const user = await User.findById(req.params.id);
+
+      res.status(201).json({
+        success: true,
+        user,
+      });
+    } catch (error) {
       return next(new ErrorHandler(e.message, 500));
     }
   })
