@@ -286,4 +286,23 @@ router.put(
 );
 
 
+
+//get seller information with user id
+router.get(
+  "/user-info/:id",
+  catchAsyncError(async (req, res, next) => {
+    try {
+      const user = await Shop.findById(req.params.id);
+
+      res.status(201).json({
+        success: true,
+        user,
+      });
+    } catch (error) {
+      return next(new ErrorHandler(e.message, 500));
+    }
+  })
+);
+
+
 module.exports = router;

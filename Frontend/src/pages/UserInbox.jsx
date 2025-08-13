@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Header from "../components/Layout/Header";
 import { useSelector } from "react-redux";
 import socketIO from "socket.io-client";
@@ -6,6 +6,13 @@ import { format } from "timeago.js";
 import { backend_url, server } from "../server";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import {
+  AiOutlineArrowLeft,
+  AiOutlineArrowRight,
+  AiOutlineSend,
+} from "react-icons/ai";
+import { TfiGallery } from "react-icons/tfi";
+import styles from "../styles/styles";
 const ENDPOINT = "http://localhost:4000/";
 const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
@@ -87,7 +94,7 @@ const UserInbox = () => {
     e.preventDefault();
 
     const receiverId = currentChat.members.find(
-      (member) => member._id !== user._id
+      (member) => member !== user._id
     );
 
     const message = {
@@ -96,8 +103,6 @@ const UserInbox = () => {
       receiver: receiverId,
       conversationId: currentChat._id,
     };
-
-    console.log(receiverId);
 
     socketId.emit("sendMessage", {
       senderId: user._id,
@@ -170,6 +175,20 @@ const UserInbox = () => {
             ))}
         </>
       )}
+
+      {open && (
+        <SellerInbox
+          setOpen={setOpen}
+          newMessage={newMessage}
+          setNewMessage={setNewMessage}
+          sendMessageHandler={sendMessageHandler}
+          messages={messages}
+          userId={user._id}
+          userData={userData}
+          currentChat={currentChat}
+          checkOnline={checkOnline}
+        />
+      )}
     </div>
   );
 };
@@ -187,20 +206,18 @@ const MessageList = ({
   online,
 }) => {
   const navigate = useNavigate();
-  const [user, setUser]= useState([]);
-
   const handleClick = (id) => {
     navigate(`?${id}`);
   };
 
   useEffect(() => {
-    const userId = data.members.find((user) => user != me);
+    // this user is seller
+    const userId = data.members.find((user) => user !== me);
 
     const getUser = async () => {
       try {
-        const res = await axios.get(`${server}/user/user-info/${userId}`);
+        const res = await axios.get(`${server}/shop/user-info/${userId}`);
         setUserData(res.data.user);
-        setUser(res.data.user);
       } catch (error) {
         console.log(error);
       }
@@ -219,7 +236,6 @@ const MessageList = ({
         setActive(index);
         handleClick(data._id);
         setCurrentChat(data);
-        setUserData(user);
       }}
     >
       <div className="relative">
@@ -235,14 +251,120 @@ const MessageList = ({
         )}
       </div>
       <div className="pl-3">
-        <h1 className="text-[18px]">{userData && userData.name}</h1>
+        <h1 className="text-[18px]">{userData && userData.shopName}</h1>
         <p className="text-[16px] text-[#000c]">
           {data.lastMessageId !== userData?._id
             ? "You: "
-            : userData?.name.split(" ")[0] + ": "}
+            : userData?.shopName.split(" ")[0] + ": "}
           {data?.lastMessage}
         </p>
       </div>
+    </div>
+  );
+};
+
+const SellerInbox = ({
+  setOpen,
+  newMessage,
+  setNewMessage,
+  sendMessageHandler,
+  messages,
+  userId,
+  userData,
+  currentChat,
+  checkOnline,
+}) => {
+  return (
+    <div className="w-full h-[75vh] flex flex-col justify-between">
+      {/**message header */}
+      <div className="flex w-full p-3 items-center bg-slate-200">
+        <AiOutlineArrowLeft
+          size={20}
+          className="cursor-pointer mr-5"
+          onClick={() => setOpen(false)}
+        />
+        <div className="flex">
+          <img
+            src={`${backend_url}/${userData?.avatar}`}
+            alt=""
+            className="w-[60px] h-[60px] rounded-full"
+          />
+          <div className="pl-3">
+            <h1 className="text-[18px] font-[600]">{userData?.shopName}</h1>
+            {checkOnline(currentChat) && <h1>Active now</h1>}
+          </div>
+        </div>
+      </div>
+
+      {/**messages */}
+    <ShowMessagesArea userId={userId} messages={messages} userData= {userData}/>
+
+
+      {/**send message input */}
+      <form
+        onSubmit={sendMessageHandler}
+        aria-required={true}
+        className="relative p-3 w-full flex items-center justify-between"
+      >
+        <div className="w-[3%]">
+          <TfiGallery size={20} className="cursor-pointer" />
+        </div>
+        <div className="w-[97%]">
+          <input
+            type="text"
+            required
+            placeholder="Enter your message..."
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            className={`${styles.input}`}
+          />
+          <input type="submit" value="Send" id="send" className="hidden" />
+          <label htmlFor="send">
+            <AiOutlineSend
+              size={20}
+              className="absolute top-5 right-4 cursor-pointer"
+            />
+          </label>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+const ShowMessagesArea = ({messages, userId, userData}) => {
+      const messagesEndRef = useRef(null);
+    
+      useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, [messages]);
+
+
+  return (
+    <div className="px-3 h-[65vh] py-3 overflow-y-scroll">
+      {messages &&
+        messages.map((item, index) => (
+          <div
+            className={`w-full flex my-2 ${
+              userId == item.sender ? "justify-end" : "justify-start"
+            }`}
+          >
+            {userId !== item.sender && (
+              <img
+                src={`${backend_url}/${userData?.avatar}`}
+                className="rounded-full w-[40px] h-[40px] mr-3"
+              />
+            )}
+            <div>
+              <div className="max-w-[50vh] p-2 h-min rounded bg-[#38c776] text-white">
+                <p>{item.text}</p>
+              </div>
+              <p className="text-end text-[12px] text-[#000000d3]">
+                {format(item.createdAt)}
+              </p>
+            </div>
+          </div>
+        ))}
+        <div ref={messagesEndRef}/>
     </div>
   );
 };

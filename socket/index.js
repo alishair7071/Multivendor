@@ -22,16 +22,22 @@ let users = [];
 const addUser = (userId, socketId) => {
   !users.some((user) => user.userId === userId) &&
     users.push({ userId, socketId });
+
+  console.log("users in current add User block");
+  console.log(users);
 };
 
 const removeUser = (socketId) => {
-    console.log("user us removing");
-    console.log(users);
+  console.log("user us removing");
+  console.log(users);
   users = users.filter((user) => user.socketId !== socketId);
 };
 
 const getUser = (receiverId) => {
-  return users.find((user) => user.userId === receiverId);
+  const user = users.find((user) => user.userId === receiverId);
+  console.log("receiver in get User: ");
+  console.log(user);
+  return user;
 };
 
 //Define a message object with a seen property
@@ -49,7 +55,7 @@ io.on("connection", (socket) => {
 
   //take userId and socketId from user
   socket.on("addUser", (userId) => {
-    console.log("userid: "+userId+  "socketId"+ socket.id);
+    console.log("add User is called");
     addUser(userId, socket.id);
     io.emit("getUsers", users);
   });
@@ -62,15 +68,11 @@ io.on("connection", (socket) => {
     console.log("send message is called");
     console.log(message);
 
+    console.log(users);
+
     const user = getUser(receiverId);
-    console.log(user);
-    console.log("senderId: "+ senderId )
-    console.log("receiverId:"+ receiverId )
-    console.log("text: "+ text )
-    console.log("images: "+ images ) 
-     
 
-
+    console.log(messages[receiverId]);
 
     //Store the messages in the 'messages' object
     if (!messages[receiverId]) {
@@ -79,8 +81,12 @@ io.on("connection", (socket) => {
       messages[receiverId].push(message);
     }
 
+    console.log(messages[receiverId]);
+
     //send the message to the receiver
-    io.to(user?.socketId).emit("getMessage", message);
+    if (user) {
+      io.to(user?.socketId).emit("getMessage", message);
+    }
   });
 
   socket.on("messageSeen", ({ senderId, receiverId, messageId }) => {

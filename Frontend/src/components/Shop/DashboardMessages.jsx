@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { backend_url, server } from "../../server";
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AiOutlineArrowRight, AiOutlineSend } from "react-icons/ai";
+import {
+  AiOutlineArrowLeft,
+  AiOutlineArrowRight,
+  AiOutlineSend,
+} from "react-icons/ai";
 import styles from "../../styles/styles";
 import { TfiGallery } from "react-icons/tfi";
 import socketIO from "socket.io-client";
@@ -58,6 +62,7 @@ const DashboardMessages = () => {
   useEffect(() => {
     if (seller) {
       const userId = seller?._id;
+      console.log("its going to call add User");
       socketId.emit("addUser", userId);
       socketId.on("getUsers", (data) => {
         setOnlineUsers(data);
@@ -70,6 +75,7 @@ const DashboardMessages = () => {
     const online =
       onlineUsers && onlineUsers.find((user) => user.userId === chatMembers);
     //setActiveStatus(online ? true : false);
+    console.log(online);
     return online ? true : false;
   };
 
@@ -100,8 +106,6 @@ const DashboardMessages = () => {
       receiver: receiverId,
       conversationId: currentChat._id,
     };
-
-    console.log(receiverId);
 
     socketId.emit("sendMessage", {
       senderId: seller._id,
@@ -184,7 +188,7 @@ const DashboardMessages = () => {
           sellerId={seller._id}
           userData={userData}
           currentChat={currentChat}
-          checkOnline= {checkOnline}
+          checkOnline={checkOnline}
         />
       )}
     </div>
@@ -204,7 +208,7 @@ const MessageList = ({
   online,
 }) => {
   const navigate = useNavigate();
-  const [user, setUser]= useState([]);
+  const [user, setUser] = useState([]);
 
   const handleClick = (id) => {
     navigate(`?${id}`);
@@ -227,7 +231,6 @@ const MessageList = ({
   }, [me, data]);
 
   return (
-
     <div
       className={`w-full flex p-3 px-3 ${
         active == index ? "bg-[#00000010]" : "bg-transparent"
@@ -237,12 +240,12 @@ const MessageList = ({
         setActive(index);
         handleClick(data._id);
         setCurrentChat(data);
-        setUserData(user)
+        setUserData(user);
       }}
     >
       <div className="relative">
         <img
-          src={`${backend_url}/${user?.avatar}`}
+          src={`${backend_url}/${userData?.avatar}`}
           alt=""
           className="w-[50px] h-[50px] rounded-full"
         />
@@ -253,11 +256,11 @@ const MessageList = ({
         )}
       </div>
       <div className="pl-3">
-        <h1 className="text-[18px]">{user && user.name}</h1>
+        <h1 className="text-[18px]">{userData && userData.name}</h1>
         <p className="text-[16px] text-[#000c]">
-          {data.lastMessageId !== user?._id
+          {data.lastMessageId !== userData?._id
             ? "You: "
-            : user?.name.split(" ")[0] + ": "}
+            : userData?.name.split(" ")[0] + ": "}
           {data?.lastMessage}
         </p>
       </div>
@@ -274,12 +277,17 @@ const SellerInbox = ({
   sellerId,
   userData,
   currentChat,
-  checkOnline
+  checkOnline,
 }) => {
   return (
-    <div className="w-full min-h-full flex flex-col justify-between">
+    <div className="w-full h-[85vh] flex flex-col justify-between">
       {/**message header */}
-      <div className="flex w-full p-3 items-center justify-between bg-slate-200">
+      <div className="flex w-full p-3 items-center bg-slate-200">
+        <AiOutlineArrowLeft
+          size={20}
+          className="cursor-pointer mr-5"
+          onClick={() => setOpen(false)}
+        />
         <div className="flex">
           <img
             src={`${backend_url}/${userData?.avatar}`}
@@ -291,39 +299,11 @@ const SellerInbox = ({
             {checkOnline(currentChat) && <h1>Active now</h1>}
           </div>
         </div>
-        <AiOutlineArrowRight
-          size={20}
-          className="cursor-pointer"
-          onClick={() => setOpen(false)}
-        />
       </div>
 
       {/**messages */}
-      <div className="px-3 h-[65vh] py-3 overflow-y-scroll">
-        {messages &&
-          messages.map((item, index) => (
-            <div
-              className={`w-full flex my-2 ${
-                sellerId == item.sender ? "justify-end" : "justify-start"
-              }`}
-            >
-              {sellerId !== item.sender && (
-                <img
-                  src="http://localhost:8000//download-1754549336600-17.png"
-                  className="rounded-full w-[40px] h-[40px] mr-3"
-                />
-              )}
-              <div>
-                <div className="max-w-[50vh] p-2 h-min rounded bg-[#38c776] text-white">
-                  <p>{item.text}</p>
-                </div>
-                <p className="text-end text-[12px] text-[#000000d3]">
-                  {format(item.createdAt)}
-                </p>
-              </div>
-            </div>
-          ))}
-      </div>
+
+      <ShowMessagesArea messages={messages} sellerId={sellerId} userData={userData}/>
 
       {/**send message input */}
       <form
@@ -352,6 +332,43 @@ const SellerInbox = ({
           </label>
         </div>
       </form>
+    </div>
+  );
+};
+
+const ShowMessagesArea = ({ messages, sellerId, userData }) => {
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  return (
+    <div className="px-3 h-[65vh] py-3 overflow-y-scroll">
+      {messages &&
+        messages.map((item, index) => (
+          <div
+            className={`w-full flex my-2 ${
+              sellerId == item.sender ? "justify-end" : "justify-start"
+            }`}
+          >
+            {sellerId !== item.sender && (
+              <img
+                src={`${backend_url}/${userData?.avatar}`}
+                className="rounded-full w-[40px] h-[40px] mr-3"
+              />
+            )}
+            <div>
+              <div className="max-w-[50vh] p-2 h-min rounded bg-[#38c776] text-white">
+                <p>{item.text}</p>
+              </div>
+              <p className="text-end text-[12px] text-[#000000d3]">
+                {format(item.createdAt)}
+              </p>
+            </div>
+          </div>
+        ))}
+        <div ref={messagesEndRef}/>
     </div>
   );
 };
