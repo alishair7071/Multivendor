@@ -7,27 +7,22 @@ const { upload } = require("../multer");
 
 router.post(
   "/create-new-message",
-  upload.array("images"),
+  upload.single("images"),
   catchAsyncError(async (req, res, next) => {
-    try {
-      const messageData = req.body;
 
-      if (req.files) {
-        const files = req.files;
-        const imageUrls = files.map((file) => file.filename);
-        messageData.images = imageUrls;
+    try {
+      const messageData = {};
+      console.log(req.file);
+
+      if (req.file) {
+        messageData.images= req.file.filename;
       }
 
       messageData.conversationId = req.body.conversationId;
       messageData.sender = req.body.sender;
       messageData.text = req.body.text;
 
-      const message = new Messages({
-        conversationId: messageData.conversationId,
-        sender: messageData.sender,
-        text: messageData.text,
-        images: messageData.images ? messageData.images : undefined,
-      });
+      const message = new Messages(messageData);
 
       await message.save();
 
@@ -52,9 +47,8 @@ router.get(
 
       res.status(201).json({
         success: true,
-        messages
-      })
-
+        messages,
+      });
     } catch (error) {
       return next(new ErrorHandler(error.message), 500);
     }

@@ -5,7 +5,7 @@ const { upload } = require("../multer");
 const Product = require("../model/product");
 const ErrorHandler = require("../utils/ErrorHandler");
 const Shop = require("../model/shop");
-const { isSeller, isAuthenticated } = require("../middleware/auth");
+const { isSeller, isAuthenticated, isAdmin } = require("../middleware/auth");
 const fs = require("fs");
 const Order = require("../model/order");
 
@@ -113,7 +113,6 @@ router.get(
   })
 );
 
-
 // review for a product
 router.put(
   "/create-new-review",
@@ -171,5 +170,24 @@ router.put(
   })
 );
 
+// all products --- for admin
+router.get(
+  "/admin-all-products",
+  isAuthenticated,
+  isAdmin("Admin"),
+  catchAsyncError(async (req, res, next) => {
+    try {
+      const products = await Product.find().sort({
+        createdAt: -1,
+      });
+      res.status(201).json({
+        success: true,
+        products,
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
 
 module.exports = router;

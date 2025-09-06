@@ -35,8 +35,6 @@ const removeUser = (socketId) => {
 
 const getUser = (receiverId) => {
   const user = users.find((user) => user.userId === receiverId);
-  console.log("receiver in get User: ");
-  console.log(user);
   return user;
 };
 
@@ -68,11 +66,7 @@ io.on("connection", (socket) => {
     console.log("send message is called");
     console.log(message);
 
-    console.log(users);
-
     const user = getUser(receiverId);
-
-    console.log(messages[receiverId]);
 
     //Store the messages in the 'messages' object
     if (!messages[receiverId]) {
@@ -80,8 +74,6 @@ io.on("connection", (socket) => {
     } else {
       messages[receiverId].push(message);
     }
-
-    console.log(messages[receiverId]);
 
     //send the message to the receiver
     if (user) {

@@ -5,7 +5,7 @@ const fs = require("fs");
 const sendMail = require("../utils/sendMail.js");
 const jwt = require("jsonwebtoken");
 const sendToken = require("../utils/jwtToken.js");
-const { isAuthenticated, isSeller } = require("../middleware/auth.js");
+const { isAuthenticated, isSeller, isAdmin } = require("../middleware/auth.js");
 const { upload } = require("../multer.js");
 const Shop = require("../model/shop.js");
 const catchAsyncError = require("../middleware/catchAsyncError.js");
@@ -252,7 +252,6 @@ router.put(
   })
 );
 
-
 // update seller info
 router.put(
   "/update-seller-info",
@@ -285,8 +284,6 @@ router.put(
   })
 );
 
-
-
 //get seller information with user id
 router.get(
   "/user-info/:id",
@@ -304,5 +301,97 @@ router.get(
   })
 );
 
+// all sellers --- for admin
+router.get(
+  "/admin-all-sellers",
+  isAuthenticated,
+  isAdmin("Admin"),
+  catchAsyncError(async (req, res, next) => {
+    try {
+      const sellers = await Shop.find().sort({
+        createdAt: -1,
+      });
+      res.status(201).json({
+        success: true,
+        sellers,
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
+
+//delete seller ------ admin
+router.delete(
+  "/delete-seller/:id",
+  isAuthenticated,
+  isAdmin("Admin"),
+  catchAsyncError(async (req, res, next) => {
+    try {
+      const seller = await Shop.findById(req.params.id);
+      if (!seller) {
+        return next(new ErrorHandler("Seller does not exist", 400));
+      }
+
+      await Shop.findByIdAndDelete(req.params.id);
+
+      res.status(200).json({
+        success: true,
+        message: "Seller deleted successfully",
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
+
+//update withdraw method ----- seller
+router.put(
+  "/update-withdraw-method",
+  isSeller,
+  catchAsyncError(async (req, res, next) => {
+    try {
+      const { withdrawMethod } = req.body;
+
+      const seller = await Shop.findByIdAndUpdate(req.seller._id, {
+        withdrawMethod,
+      });
+
+      res.status(201).json({
+        success: true,
+        seller,
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
+
+
+// delete withdraw method ------ seller
+router.delete(
+  "/delete-withdraw-method",
+  isSeller,
+  catchAsyncError(async (req, res, next) => {
+    try {
+      const seller = await Shop.findById(req.seller._id);
+
+      if (!seller) {
+        return next(new ErrorHandler("User does not exists", 400));
+      }
+
+      seller.withdrawMethod = null;
+
+      await seller.save();
+
+      res.status(200).json({
+        success: true,
+        message: "Withdraw method deleted successfully",
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
 
 module.exports = router;

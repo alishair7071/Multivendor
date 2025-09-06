@@ -5,6 +5,8 @@ const initialState = {
   loading: true,
   user: null,
   error: null,
+  allUsers: [],
+  allUsersLoading: true,
 };
 
 const userSlice = createSlice({
@@ -71,6 +73,19 @@ const userSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+
+    //get all users for admin
+    getAllUsersRequest: (state) => {
+      state.allUsersLoading = true;
+    },
+    getAllUsersSuccess: (state, action) => {
+      state.allUsersLoading = false;
+      state.allUsers = action.payload;
+    },
+    getAllUsersFail: (state, action) => {
+      state.allUsersLoading = false;
+      state.error = action.payload;
+    },
   },
 });
 
@@ -90,4 +105,7 @@ export const {
   deleteUserAddressRequest,
   deleteUserAddressSuccess,
   deleteUserAddressFail,
+  getAllUsersRequest,
+  getAllUsersSuccess,
+  getAllUsersFail,
 } = userSlice.actions;

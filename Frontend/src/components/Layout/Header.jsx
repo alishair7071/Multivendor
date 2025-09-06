@@ -222,7 +222,7 @@ const Header = ({ activeHeading }) => {
             </Link>
           </div>
 
-          <div>
+          <div onClick={() => setOpenCart(true)}>
             <div className="mr-[20px] relative">
               <AiOutlineShoppingCart size={30} />
               <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top top right m-0 p-0 text-white font-mono text-[12px] leading-tight text-center ">
@@ -230,15 +230,27 @@ const Header = ({ activeHeading }) => {
               </span>
             </div>
           </div>
+
+          {/*Cart popup */}
+          {openCart ? <Cart setOpenCart={setOpenCart} /> : null}
+
+          {/*WishList popup */}
+          {openWishList ? <WishList setOpenWishList={setOpenWishList} /> : null}
         </div>
 
         {/**header sidebar */}
         {open && (
           <div className="fixed w-full h-full bg-[#0000005f] z-20 top-0 left-0">
-            <div className="fixed bg-white w-[60%] h-screen z-10 top-0 left-0 overflow-y-scroll">
+            <div className="fixed bg-white w-[70%] h-screen z-10 top-0 left-0 overflow-y-scroll">
               <div className="w-full flex justify-between pr-3">
                 <div>
-                  <div className="relative mr-[15px]">
+                  <div
+                    className="relative mr-[15px]"
+                    onClick={() => {
+                      setOpenWishList(true);
+                      setOpen(false);
+                    }}
+                  >
                     <AiOutlineHeart size={30} className="mt-5 ml-3" />
                     <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top top right m-0 p-0 text-white font-mono text-[12px] leading-tight text-center ">
                       {wishlist && wishlist.length}

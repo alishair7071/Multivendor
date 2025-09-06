@@ -33,7 +33,7 @@ const payment= require("./controller/payment.js");
 const order= require("./controller/order.js");
 const conversation= require("./controller/conversation.js");
 const message= require("./controller/message.js");
-
+const withdraw= require("./controller/withdraw.js");
 
 
 app.use("/api/v2/user", user);
@@ -45,6 +45,9 @@ app.use("/api/v2/payment", payment);
 app.use("/api/v2/order", order);
 app.use("/api/v2/conversation", conversation);
 app.use("/api/v2/message", message);
+app.use("/api/v2/withdraw", withdraw);
+
+
 
 
 

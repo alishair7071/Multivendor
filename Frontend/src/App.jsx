@@ -1,6 +1,21 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import axios from "axios";
+import { server } from "./server.js";
+import Store from "./redux/store.js";
+import { useDispatch, useSelector } from "react-redux";
+import { loadSeller, loadUser } from "./redux/actions/user.js";
+import ProtectedRoute from "./routes/ProtectedRoutes/ProtectedRoute.jsx";
+import SellerProtectedRoute from "./routes/ProtectedRoutes/SellerProtectedRoute.jsx";
+import ProtectedAdminRoute from "./routes/ProtectedRoutes/ProtectedAdminRoute.jsx";
+import { getAllProducts } from "./redux/actions/product.js";
+import { getAllEvents } from "./redux/actions/event.js";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+//import 'react-toastify/dist/ReactToastify.css';
+
 import {
   LoginPage,
   SignupPage,
@@ -20,16 +35,9 @@ import {
   OrderSuccessPage,
   OrderDetailsPage,
   TrackOrderPage,
-  UserInbox
+  UserInbox,
 } from "./routes/Routes.js";
 
-import { ToastContainer, toast } from "react-toastify";
-import axios from "axios";
-import { server } from "./server.js";
-import Store from "./redux/store.js";
-import { useDispatch, useSelector } from "react-redux";
-import { loadSeller, loadUser } from "./redux/actions/user.js";
-import ProtectedRoute from "./routes/ProtectedRoutes/ProtectedRoute.jsx";
 import {
   ShopHomePage,
   ShopDashboardPage,
@@ -44,14 +52,18 @@ import {
   ShopAllRefunds,
   ShopSettingsPage,
   ShopWithdrawMoneyPage,
-  ShopInboxPage
+  ShopInboxPage,
 } from "./routes/ShopRoutes.js";
-import SellerProtectedRoute from "./routes/ProtectedRoutes/SellerProtectedRoute.jsx";
-import { getAllProducts } from "./redux/actions/product.js";
-import { getAllEvents } from "./redux/actions/event.js";
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
-//import 'react-toastify/dist/ReactToastify.css';
+
+import {
+  AdminDashboardPage,
+  AdminDashboardUsers,
+  AdminDashboardSellers,
+  AdminDashboardOrders,
+  AdminDashboardProducts,
+  AdminDashboardEvents,
+  AdminDashboardWithdraw,
+} from "./routes/AdminRoutes.js";
 
 function App() {
   const dispatch = useDispatch();
@@ -127,7 +139,6 @@ function App() {
           }
         />
 
-        
         <Route
           path="/inbox"
           element={
@@ -155,8 +166,9 @@ function App() {
           }
         />
 
-        <Route path="/shop/preview/:id" element={<ShopPreviewPage />} />
         {/**shop routes */}
+
+        <Route path="/shop/preview/:id" element={<ShopPreviewPage />} />
         <Route path="/shop-create" element={<ShopCreatePage />} />
         <Route path="/shop-login" element={<ShopLoginPage />} />
         <Route
@@ -275,7 +287,73 @@ function App() {
             </SellerProtectedRoute>
           }
         />
+
+        {/** admin routes */}
+
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedAdminRoute>
+              <AdminDashboardPage />
+            </ProtectedAdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin-users"
+          element={
+            <ProtectedAdminRoute>
+              <AdminDashboardUsers />
+            </ProtectedAdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin-sellers"
+          element={
+            <ProtectedAdminRoute>
+              <AdminDashboardSellers />
+            </ProtectedAdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin-orders"
+          element={
+            <ProtectedAdminRoute>
+              <AdminDashboardOrders />
+            </ProtectedAdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin-products"
+          element={
+            <ProtectedAdminRoute>
+              <AdminDashboardProducts />
+            </ProtectedAdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin-events"
+          element={
+            <ProtectedAdminRoute>
+              <AdminDashboardEvents />
+            </ProtectedAdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin-withdraw-request"
+          element={
+            <ProtectedAdminRoute>
+              <AdminDashboardWithdraw />
+            </ProtectedAdminRoute>
+          }
+        />
       </Routes>
+
       <ToastContainer
         position="bottom-center"
         autoClose={5000}

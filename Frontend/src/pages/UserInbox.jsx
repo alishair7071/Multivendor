@@ -28,6 +28,7 @@ const UserInbox = () => {
   const [userData, setUserData] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [activeStatus, setActiveStatus] = useState(false);
+  const [images, setImages] = useState(null);
 
   useEffect(() => {
     socketId.on("getMessage", (data) => {
@@ -147,6 +148,62 @@ const UserInbox = () => {
       });
   };
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    setImages(file);
+
+    imageSendingHandler(file);
+  };
+
+  const imageSendingHandler = async (file) => {
+    const formData = new FormData();
+
+    formData.append("sender", user._id);
+    formData.append("images", file);
+    formData.append("text", newMessage);
+    formData.append("conversationId", currentChat._id);
+
+    const receiverId = currentChat.members.find(
+      (member) => member != user._id
+    );
+
+    socketId.emit("sendMessage", {
+      senderId: user._id,
+      receiverId,
+      text: newMessage,
+      images: file,
+    });
+
+    try {
+      await axios
+        .post(`${server}/message/create-new-message`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((res) => {
+          setImages();
+          setMessages([...messages, res.data.message]);
+          updateLastMessageForImage();
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const updateLastMessageForImage = async () => {
+    try {
+      await axios
+        .put(`${server}/conversation/update-last-message/${currentChat._id}`, {
+          lastMessage: "Photo",
+          lastMessageId: user._id,
+        })
+        .then((res) => {
+          setNewMessage("");
+        });
+    } catch (error) {}
+  };
+
   return (
     <div className="w-full">
       <Header />
@@ -187,6 +244,7 @@ const UserInbox = () => {
           userData={userData}
           currentChat={currentChat}
           checkOnline={checkOnline}
+          handleImageUpload={handleImageUpload}
         />
       )}
     </div>
@@ -273,6 +331,7 @@ const SellerInbox = ({
   userData,
   currentChat,
   checkOnline,
+  handleImageUpload,
 }) => {
   return (
     <div className="w-full h-[75vh] flex flex-col justify-between">
@@ -297,8 +356,11 @@ const SellerInbox = ({
       </div>
 
       {/**messages */}
-    <ShowMessagesArea userId={userId} messages={messages} userData= {userData}/>
-
+      <ShowMessagesArea
+        userId={userId}
+        messages={messages}
+        userData={userData}
+      />
 
       {/**send message input */}
       <form
@@ -307,7 +369,16 @@ const SellerInbox = ({
         className="relative p-3 w-full flex items-center justify-between"
       >
         <div className="w-[3%]">
-          <TfiGallery size={20} className="cursor-pointer" />
+          <input
+            type="file"
+            name=""
+            id="image"
+            className="hidden"
+            onChange={handleImageUpload}
+          />
+          <label htmlFor="image">
+            <TfiGallery size={20} className="cursor-pointer" />
+          </label>
         </div>
         <div className="w-[97%]">
           <input
@@ -331,13 +402,12 @@ const SellerInbox = ({
   );
 };
 
-const ShowMessagesArea = ({messages, userId, userData}) => {
-      const messagesEndRef = useRef(null);
-    
-      useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, [messages]);
+const ShowMessagesArea = ({ messages, userId, userData }) => {
+  const messagesEndRef = useRef(null);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   return (
     <div className="px-3 h-[65vh] py-3 overflow-y-scroll">
@@ -354,9 +424,23 @@ const ShowMessagesArea = ({messages, userId, userData}) => {
                 className="rounded-full w-[40px] h-[40px] mr-3"
               />
             )}
+
             <div>
-              <div className="max-w-[50vh] p-2 h-min rounded bg-[#38c776] text-white">
-                <p>{item.text}</p>
+              <div>
+                <div>
+                  {" "}
+                  {item.images && (
+                    <img
+                      src={`${backend_url}/${item.images}`}
+                      className="w-[150px] h-[150px] object-cover rounded-[10px]"
+                    />
+                  )}
+                </div>
+                {item.text && (
+                  <div className="max-w-[50vh] p-2 h-min rounded bg-[#38c776] text-white break-words">
+                    <p>{item.text}</p>
+                  </div>
+                )}
               </div>
               <p className="text-end text-[12px] text-[#000000d3]">
                 {format(item.createdAt)}
@@ -364,7 +448,7 @@ const ShowMessagesArea = ({messages, userId, userData}) => {
             </div>
           </div>
         ))}
-        <div ref={messagesEndRef}/>
+      <div ref={messagesEndRef} />
     </div>
   );
 };

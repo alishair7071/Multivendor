@@ -4,7 +4,8 @@ const initialState = {
   isLoading: true,
   orders: null,
   error: null,
-  shopOrders: null
+  shopOrders: null,
+  adminOrders: null
 };
 
 const orderSlice = createSlice({
@@ -41,6 +42,21 @@ const orderSlice = createSlice({
       state.error = actions.payload;
     },
 
+    //get all orders for admin
+    getAllOrdersAdminRequest: (state) => {
+      state.isLoading = true;
+    },
+
+    getAllOrdersAdminSuccess: (state, actions) => {
+      state.isLoading = false;
+      state.adminOrders = actions.payload;
+    },
+
+    getAllOrdersAdminFailed: (state, actions) => {
+      state.isLoading = false;
+      state.error = actions.payload;
+    },
+
     clearError: (state) => {
       state.error = null;
     },
@@ -55,5 +71,8 @@ export const {
   getAllOrdersShopRequest,
   getAllOrdersShopSuccess,
   getAllOrdersShopFailed,
+  getAllOrdersAdminRequest,
+  getAllOrdersAdminSuccess,
+  getAllOrdersAdminFailed,
   clearError,
 } = orderSlice.actions;

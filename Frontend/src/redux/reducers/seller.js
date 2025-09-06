@@ -5,6 +5,8 @@ const initialState = {
   isLoading: true,
   seller: null,
   error: null,
+  allSellers: [],
+  allSellersLoading: true
 };
 
 const sellerSlice = createSlice({
@@ -25,15 +27,39 @@ const sellerSlice = createSlice({
       state.error = action.payload;
       state.isSeller = false;
     },
+
+
+    //get all sellers for admin
+    getAllSellersRequest: (state) => {
+      state.allSellersLoading = true;
+    },
+    getAllSellersSuccess: (state, action) => {
+      state.allSellersLoading = false;
+      state.allSellers = action.payload;
+    },
+    getAllSellersFail: (state, action) => {
+      state.allSellersLoading = false;
+      state.error = action.payload;
+    },
+
     clearError: (state) => {
       state.error = null;
     },
-    logOutSeller: (state) =>{
-      state.seller= null;
-      state.isSeller= false;
-    }
+    logOutSeller: (state) => {
+      state.seller = null;
+      state.isSeller = false;
+    },
   },
 });
 
-export const sellerReducer= sellerSlice.reducer;
-export const { LoadSellerRequest, LoadSellerSuccess, LoadSellerFail, clearError, logOutSeller}= sellerSlice.actions;
+export const sellerReducer = sellerSlice.reducer;
+export const {
+  LoadSellerRequest,
+  LoadSellerSuccess,
+  LoadSellerFail,
+  clearError,
+  logOutSeller,
+  getAllSellersRequest,
+  getAllSellersSuccess,
+  getAllSellersFail,
+} = sellerSlice.actions;

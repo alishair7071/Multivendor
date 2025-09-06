@@ -14,7 +14,13 @@ const EventsPage = () => {
       ) : (
         <div>
           <Header activeHeading={4} />
-          <EventCard active={true} data = {allEvents && allEvents[0]}/>
+          {allEvents.length !== 0 ? (
+            <EventCard active={true} data={allEvents && allEvents[0]} />
+          ) : (
+            <div className="flex w-full h-screen justify-center items-center">
+              <h4>No Events have!</h4>
+            </div>
+          )}
         </div>
       )}
     </>

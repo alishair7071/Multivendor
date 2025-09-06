@@ -13,7 +13,10 @@ import {
   updateUserAddressesFail,
   deleteUserAddressRequest,
   deleteUserAddressSuccess,
-  deleteUserAddressFail
+  deleteUserAddressFail,
+  getAllUsersRequest,
+  getAllUsersSuccess,
+  getAllUsersFail
 } from "../reducers/user";
 import {
   LoadSellerFail,
@@ -104,5 +107,19 @@ export const deleteUserAddress = (addressId) => async (dispatch) => {
   } catch (e) {
     dispatch(updateUserAddressesFail(e.response.data.message));
     return e.response.data;
+  }
+};
+
+
+//get all users for admin
+export const getAllUsersAdminFun = () => async (dispatch) => {
+  try {
+    dispatch(getAllUsersRequest());
+    const { data } = await axios.get(`${server}/user/admin-all-users`, {
+      withCredentials: true,
+    });
+    dispatch(getAllUsersSuccess(data.users));
+  } catch (e) {
+    dispatch(getAllUsersFail(e.message));
   }
 };

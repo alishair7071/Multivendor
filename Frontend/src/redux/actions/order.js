@@ -1,5 +1,8 @@
 import axios from "axios";
 import {
+  getAllOrdersAdminFailed,
+  getAllOrdersAdminRequest,
+  getAllOrdersAdminSuccess,
   getAllOrdersShopFailed,
   getAllOrdersShopRequest,
   getAllOrdersShopSuccess,
@@ -36,5 +39,20 @@ export const getAllOrdersShopFun = (shopId) => async (dispatch) => {
     dispatch(getAllOrdersShopSuccess(data.orders));
   } catch (error) {
     dispatch(getAllOrdersShopFailed(error.response.data.message));
+  }
+};
+
+//get all orders for admin
+export const getAllOrdersAdminFun = () => async (dispatch) => {
+  try {
+    dispatch(getAllOrdersAdminRequest());
+
+    const { data } = await axios.get(`${server}/order/admin-all-orders`, {
+      withCredentials: true,
+    });
+
+    dispatch(getAllOrdersAdminSuccess(data.orders));
+  } catch (error) {
+    dispatch(getAllOrdersAdminFailed(error.response.data.message));
   }
 };

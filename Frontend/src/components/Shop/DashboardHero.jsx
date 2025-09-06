@@ -14,28 +14,13 @@ const DashboardHero = () => {
   const { shopOrders } = useSelector((state) => state.order);
   const { seller } = useSelector((state) => state.seller);
   const { products } = useSelector((state) => state.product);
-  const [deliveredOrders, setDeliveredOrders] = useState(null);
 
   useEffect(() => {
     dispatch(getAllOrdersShopFun(seller._id));
     dispatch(getAllProductsShop(seller._id));
   }, [dispatch]);
 
-  useEffect(() => {
-    if (shopOrders) {
-      const delivered = shopOrders.filter(
-        (order) => order.status === "Delivered"
-      );
-      setDeliveredOrders(delivered);
-    }
-  }, [shopOrders]);
-
-  const totalEarningsWithoutTax =
-    deliveredOrders &&
-    deliveredOrders.reduce((acc, order) => acc + order.totalPrice, 0);
-  const serviceCharge = totalEarningsWithoutTax * 0.1;
-  const availableBalance = totalEarningsWithoutTax - serviceCharge;
-
+  const availableBalance = seller?.availableBalance;
   const columns = [
     { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
 

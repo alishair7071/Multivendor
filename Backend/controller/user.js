@@ -9,7 +9,7 @@ const sendMail = require("../utils/sendMail.js");
 const jwt = require("jsonwebtoken");
 const catchAsyncError = require("../middleware/catchAsyncError.js");
 const sendToken = require("../utils/jwtToken.js");
-const { isAuthenticated } = require("../middleware/auth.js");
+const { isAuthenticated, isAdmin } = require("../middleware/auth.js");
 
 //create activation token
 const createActivationToken = (user) => {
@@ -376,5 +376,47 @@ router.get(
     }
   })
 );
+
+
+
+// all users --- for admin
+router.get(
+  "/admin-all-users",
+  isAuthenticated,
+  isAdmin("Admin"),
+  catchAsyncError(async (req, res, next) => {
+    try {
+      const users = await User.find().sort({
+        createdAt: -1,
+      });
+      res.status(201).json({
+        success: true,
+        users,
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
+
+
+//delete user ------ admin
+router.delete('/delete-user/:id', isAuthenticated, isAdmin("Admin"), catchAsyncError(async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return next(new ErrorHandler("User does not exist", 400));
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+}));
 
 module.exports = router;
