@@ -4,7 +4,7 @@ import { server } from "../../server";
 import { backend_url } from "../../server";
 import styles from "../../styles/styles";
 import axios from "axios";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { getAllProductsShop } from "../../redux/actions/product";
 import { logOutSeller } from "../../redux/reducers/seller";
 import { toast } from "react-toastify";
