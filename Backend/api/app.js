@@ -1,7 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const connectDatabase = require("./db/Database.js"); // adjust path if needed
-const ErrorHandler = require("./middleware/error.js");
+const connectDatabase = require("../db/Database.js"); // adjust path if needed
+const ErrorHandler = require("../middleware/error.js");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -35,16 +35,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 connectDatabase();
 
 // Routes
-const user = require("./controller/user.js");
-const shop = require("./controller/shop.js");
-const product = require("./controller/product.js");
-const event = require("./controller/event.js");
-const coupon = require("./controller/coupounCode.js");
-const payment = require("./controller/payment.js");
-const order = require("./controller/order.js");
-const conversation = require("./controller/conversation.js");
-const message = require("./controller/message.js");
-const withdraw = require("./controller/withdraw.js");
+const user = require("../controller/user.js");
+const shop = require("../controller/shop.js");
+const product = require("../controller/product.js");
+const event = require("../controller/event.js");
+const coupon = require("../controller/coupounCode.js");
+const payment = require("../controller/payment.js");
+const order = require("../controller/order.js");
+const conversation = require("../controller/conversation.js");
+const message = require("../controller/message.js");
+const withdraw = require("../controller/withdraw.js");
 
 app.use("/api/v2/user", user);
 app.use("/api/v2/shop", shop);
