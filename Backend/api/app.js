@@ -30,7 +30,7 @@ app.use(
 );
 app.use("/", express.static("uploads"));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use("/", (req, res)=>{
+app.use("/test", (req, res)=>{
   res.send("hello world");
 })
 
