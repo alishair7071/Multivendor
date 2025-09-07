@@ -30,6 +30,9 @@ app.use(
 );
 app.use("/", express.static("uploads"));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use("/", (req, res)=>{
+  res.send("hello world");
+})
 
 // Connect DB
 connectDatabase();
