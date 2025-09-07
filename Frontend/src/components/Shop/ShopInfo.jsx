@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 const ShopInfo = ({ isOwner }) => {
   const { seller } = useSelector((state) => state.seller);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { products } = useSelector((state) => state.product);
   const [data, setData] = useState({});
   const { id } = useParams();
