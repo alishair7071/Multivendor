@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:5173", // change to your frontend domain after deploy
+    origin: "https://frontend-multivendor.netlify.app", // change to your frontend domain after deploy
     credentials: true,
   })
 );
