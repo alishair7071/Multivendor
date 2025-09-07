@@ -10,6 +10,8 @@ const sendToken = (user, statusCode, res) => {
     httpOnly: true,
     sameSite: "None",
     secure: true,
+    path: "/",
+
   };
   console.log("from JWT Token:  sent to client");
   console.log(user);

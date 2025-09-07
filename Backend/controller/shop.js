@@ -190,7 +190,7 @@ router.get(
         path: "/",
       });
 */
-       res.clearCookie('seller_token');
+     res.clearCookie('seller_token');
       res.status(200).json({
         success: true,
         message: "Log out successful!",
