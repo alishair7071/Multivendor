@@ -166,8 +166,10 @@ router.get(
   catchAsyncError(async (req, res, next) => {
     try {
       res.cookie("token", null, {
-        expires: new Date(Date.now()),
+        expires: new Date(0),
         httpOnly: true,
+        sameSite: "none",
+        secure: true,
       });
 
       res.status(200).json({
@@ -377,8 +379,6 @@ router.get(
   })
 );
 
-
-
 // all users --- for admin
 router.get(
   "/admin-all-users",
@@ -399,24 +399,28 @@ router.get(
   })
 );
 
-
 //delete user ------ admin
-router.delete('/delete-user/:id', isAuthenticated, isAdmin("Admin"), catchAsyncError(async (req, res, next) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      return next(new ErrorHandler("User does not exist", 400));
+router.delete(
+  "/delete-user/:id",
+  isAuthenticated,
+  isAdmin("Admin"),
+  catchAsyncError(async (req, res, next) => {
+    try {
+      const user = await User.findById(req.params.id);
+      if (!user) {
+        return next(new ErrorHandler("User does not exist", 400));
+      }
+
+      await User.findByIdAndDelete(req.params.id);
+
+      res.status(200).json({
+        success: true,
+        message: "User deleted successfully",
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
     }
-
-    await User.findByIdAndDelete(req.params.id);
-
-    res.status(200).json({
-      success: true,
-      message: "User deleted successfully",
-    });
-  } catch (error) {
-    return next(new ErrorHandler(error.message, 500));
-  }
-}));
+  })
+);
 
 module.exports = router;
