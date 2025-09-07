@@ -165,7 +165,7 @@ router.get(
   isAuthenticated,
   catchAsyncError(async (req, res, next) => {
     try {
-      res.cookie("token", null, {
+      res.cookie("token", "", {
         expires: new Date(0),
         httpOnly: true,
         sameSite: "none",
