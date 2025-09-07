@@ -9,7 +9,7 @@ const sendShopToken= (user, statusCode, res)=>{
     const options= {
         expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         httpOnly: true,
-        sameSite: "none",
+        sameSite: "None",
         secure: true
     }
     console.log("from ShopToken Token:  sent to client");

@@ -168,7 +168,7 @@ router.get(
       res.cookie("token", "", {
         expires: new Date(0),
         httpOnly: true,
-        sameSite: "none",
+        sameSite: "None",
         secure: true,
         path: "/",
       });

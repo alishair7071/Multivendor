@@ -12,7 +12,6 @@ process.on("uncaughtException", (err) => {
   console.log("Shutting down the server due to uncaught exception");
 });
 
-
 dotenv.config();
 
 const app = express();
@@ -22,15 +21,18 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "https://frontend-multivendor.netlify.app", // change to your frontend domain after deploy
+    origin: [
+      "https://frontend-multivendor.netlify.app",
+      "http://localhost:5173",
+    ],
     credentials: true,
   })
 );
 app.use("/", express.static("uploads"));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use("/test", (req, res)=>{
+app.use("/test", (req, res) => {
   res.send("hello world");
-})
+});
 
 // Connect DB
 connectDatabase();
@@ -60,7 +62,6 @@ app.use("/api/v2/withdraw", withdraw);
 
 // Error handling
 app.use(ErrorHandler);
-
 
 /*
 //create server
