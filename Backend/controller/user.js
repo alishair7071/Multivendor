@@ -174,7 +174,13 @@ router.get(
         path: "/"
       });
 */
-      res.clearCookie("token");
+      res.clearCookie("token", {
+        httpOnly: true,
+        sameSite: "None",
+        secure: true,
+        path: "/",
+      });
+      
       res.status(200).json({
         success: true,
         message: "Log out successful!",
