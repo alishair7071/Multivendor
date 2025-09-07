@@ -6,6 +6,7 @@ import styles from "../../styles/styles";
 import axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import { getAllProductsShop } from "../../redux/actions/product";
+import { logOutSeller } from "../../redux/reducers/seller";
 
 const ShopInfo = ({ isOwner }) => {
   const { seller } = useSelector((state) => state.seller);
@@ -29,9 +30,17 @@ const ShopInfo = ({ isOwner }) => {
 
   console.log("data", data);
 
-  const logoutHandler = async () => {
-    await axios.get(`${server}/shop/logout`, { withCredentials: true });
-    window.location.reload();
+  const logoutHandler = () => {
+    axios
+      .get(`${server}/user/logout`, { withCredentials: true })
+      .then((res) => {
+        toast.success(res.data.message);
+        dispatch(logOutSeller());
+        navigate("/shop-login");
+      })
+      .catch((e) => {
+        console.log("catch Error: " + e.response.data.message);
+      });
   };
 
   const totalReviewsLength =
