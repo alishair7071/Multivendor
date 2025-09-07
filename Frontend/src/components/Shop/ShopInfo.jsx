@@ -7,6 +7,7 @@ import axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import { getAllProductsShop } from "../../redux/actions/product";
 import { logOutSeller } from "../../redux/reducers/seller";
+import { toast } from "react-toastify";
 
 const ShopInfo = ({ isOwner }) => {
   const { seller } = useSelector((state) => state.seller);
