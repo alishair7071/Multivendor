@@ -12,10 +12,8 @@ process.on("uncaughtException", (err) => {
   console.log("Shutting down the server due to uncaught exception");
 });
 
-// Config
-if (process.env.NODE_ENV !== "production") {
-  dotenv.config({ path: "config/.env" });
-}
+
+dotenv.config();
 
 const app = express();
 
