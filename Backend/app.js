@@ -1,41 +1,50 @@
-const express= require('express');
-const ErrorHandler = require('./middleware/error.js');
-const app= express();
-const cookieParser= require('cookie-parser');
-const bodyParser= require('body-parser');
-const cors= require('cors');
-require("dotenv").config();
+const express = require("express");
+const dotenv = require("dotenv");
+const connectDatabase = require("./db/Database.js"); // adjust path if needed
+const ErrorHandler = require("./middleware/error.js");
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+const cors = require("cors");
 
-app.use(express());
-app.use(express.json());
-app.use(cookieParser());
-app.use(cors({
-    origin: 'http://localhost:5173',
-    credentials: true
-}));
-app.use("/", express.static('uploads'));
+// Handle uncaught exceptions
+process.on("uncaughtException", (err) => {
+  console.log(`Error: ${err.message}`);
+  console.log("Shutting down the server due to uncaught exception");
+});
 
-app.use(bodyParser.urlencoded({extended: true}));
-
-
-//config
-if(process.env.NODE_ENV !== 'production'){
-    require('dotenv').config({path:'config/.env'});
+// Config
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config({ path: "config/.env" });
 }
 
+const app = express();
 
-//import routes
-const user= require('./controller/user.js');
-const shop= require('./controller/shop.js');
-const product= require("./controller/product.js");
-const event= require("./controller/event.js");
-const coupon= require("./controller/coupounCode");
-const payment= require("./controller/payment.js");
-const order= require("./controller/order.js");
-const conversation= require("./controller/conversation.js");
-const message= require("./controller/message.js");
-const withdraw= require("./controller/withdraw.js");
+// Middlewares
+app.use(express.json());
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // change to your frontend domain after deploy
+    credentials: true,
+  })
+);
+app.use("/", express.static("uploads"));
+app.use(bodyParser.urlencoded({ extended: true }));
 
+// Connect DB
+connectDatabase();
+
+// Routes
+const user = require("./controller/user.js");
+const shop = require("./controller/shop.js");
+const product = require("./controller/product.js");
+const event = require("./controller/event.js");
+const coupon = require("./controller/coupounCode.js");
+const payment = require("./controller/payment.js");
+const order = require("./controller/order.js");
+const conversation = require("./controller/conversation.js");
+const message = require("./controller/message.js");
+const withdraw = require("./controller/withdraw.js");
 
 app.use("/api/v2/user", user);
 app.use("/api/v2/shop", shop);
@@ -48,9 +57,17 @@ app.use("/api/v2/conversation", conversation);
 app.use("/api/v2/message", message);
 app.use("/api/v2/withdraw", withdraw);
 
-
-
-
-
+// Error handling
 app.use(ErrorHandler);
+
+
+/*
+//create server
+app.listen(process.env.PORT, ()=>{
+    console.log("abc");
+    console.log(`Server is running on the port: ${process.env.PORT}`);
+});
+*/
+
+// Instead of app.listen(), export the app for Vercel
 module.exports = app;
