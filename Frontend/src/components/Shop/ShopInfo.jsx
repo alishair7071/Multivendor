@@ -31,15 +31,18 @@ const ShopInfo = ({ isOwner }) => {
   console.log("data", data);
 
   const logoutHandler = () => {
+    console.log("logout called");
     axios
-      .get(`${server}/user/logout`, { withCredentials: true })
+      .get(`${server}/shop/logout`, { withCredentials: true })
       .then((res) => {
         toast.success(res.data.message);
+        console.log(res);
         dispatch(logOutSeller());
         navigate("/shop-login");
       })
       .catch((e) => {
-        console.log("catch Error: " + e.response.data.message);
+        console.log("error in catch");
+        console.log(e);
       });
   };
 
