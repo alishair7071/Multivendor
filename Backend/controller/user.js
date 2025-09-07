@@ -182,6 +182,7 @@ router.get(
           httpOnly: true,
           sameSite: "None",
           secure: true,
+          path: "/",
         })
         .json({
           success: true,
