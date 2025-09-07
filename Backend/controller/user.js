@@ -170,6 +170,7 @@ router.get(
         httpOnly: true,
         sameSite: "none",
         secure: true,
+        path: "/",
       });
 
       res.status(200).json({
