@@ -165,7 +165,6 @@ router.get(
   isAuthenticated,
   catchAsyncError(async (req, res, next) => {
     try {
-      /*
       res.cookie("token", "", {
         expires: new Date(0),
         httpOnly: true,
@@ -173,21 +172,11 @@ router.get(
         secure: true,
         path: "/",
       });
-      */
 
-      res
-        .status(200)
-        .cookie("token", "", {
-          expires: new Date(0),
-          httpOnly: true,
-          sameSite: "None",
-          secure: true,
-          path: "/",
-        })
-        .json({
-          success: true,
-          message: "Log out successful!",
-        });
+      res.status(200).json({
+        success: true,
+        message: "Log out successful!",
+      });
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
     }
