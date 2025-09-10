@@ -22,13 +22,14 @@ const createActivationToken = (user) => {
 
 router.post("/create-user", async (req, res, next) => {
   try {
+
+    console.log(req.body.name);
     const { name, email, password, file } = req.body;
     const userEmail = await User.findOne({ email });
 
     if (userEmail) {
       return next(new ErrorHandler("User already exists", 400));
     }
-
 
 
     const myCloud= await cloudinary.v2.uploader.upload(file, {
