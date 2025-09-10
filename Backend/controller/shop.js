@@ -25,49 +25,48 @@ router.post("/create-shop", upload.single("file"), async (req, res, next) => {
     const sellerEmail = await Shop.findOne({ email });
 
     if (sellerEmail) {
-      const filename = req.file.filename;
-      const filePath = `uploads/${filename}`;
-      fs.unlink(filePath, (err) => {
-        if (err) {
-          next(
-            new ErrorHandler("User already exists and pic is not deleted", 400)
-          );
-        } else {
-          next(new ErrorHandler("User already exists", 400));
+      return next(new ErrorHandler("User already exists", 400));
+    }
+
+    const result = await cloudinary.v2.uploader.upload_stream(
+      { folder: "avatars" },
+      async (error, result) => {
+        if (error) return next(new ErrorHandler(error.message, 500));
+
+        const seller = {
+          shopName: req.body.shopName,
+          email: email,
+          password: req.body.password,
+          avatar: {
+            public_id: result.public_id,
+            url: result.secure_url,
+          },
+          address: req.body.address,
+          phoneNumber: req.body.phoneNumber,
+          zipCode: req.body.zipCode,
+        };
+
+        const activationToken = createActivationToken(seller);
+        const activationUrl = `http://localhost:5173/seller/activation/${activationToken}`;
+
+        try {
+          await sendMail({
+            mail: seller.email,
+            subject: "Activate your Shop",
+            message: `Hello ${seller.shopName}, please click on the link to activate your shop: ${activationUrl}`,
+          });
+
+          res.status(201).json({
+            message: `Please check your email:- ${seller.email} to confirm your shop`,
+          });
+        } catch (e) {
+          return next(new ErrorHandler(e.message, 500));
         }
-      });
-      return;
-    }
+      }
+    );
 
-    const filename = req.file.filename;
-    const fileUrl = path.join(filename);
-
-    const seller = {
-      shopName: req.body.shopName,
-      email: email,
-      password: req.body.password,
-      avatar: fileUrl,
-      address: req.body.address,
-      phoneNumber: req.body.phoneNumber,
-      zipCode: req.body.zipCode,
-    };
-
-    const activationToken = createActivationToken(seller);
-    const activationUrl = `http://localhost:5173/seller/activation/${activationToken}`;
-
-    try {
-      await sendMail({
-        mail: seller.email,
-        subject: "Activate your Shop",
-        message: `Hello ${seller.shopName}, please click on the link to activate your shop: ${activationUrl}`,
-      });
-
-      res.status(201).json({
-        message: `Please check your email:- ${seller.email} to confirm your shop`,
-      });
-    } catch (e) {
-      return next(new ErrorHandler(e.message, 500));
-    }
+    // Pipe the buffer to cloudinary
+    result.end(req.file.buffer);
   } catch (e) {
     return next(new ErrorHandler(e.message, 500));
   }
