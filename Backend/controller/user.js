@@ -119,7 +119,9 @@ router.post(
         return next(new ErrorHandler("Please provide all the fields", 400));
       }
 
+      console.log("working with mongodb");
       const user = await User.findOne({ email }).select("+password");
+      console.log("working with mongodb is completed");
 
       if (!user) {
         return next(new ErrorHandler("User does not exists", 400));
@@ -130,6 +132,7 @@ router.post(
       if (!isPasswordValid) {
         return next(new ErrorHandler("Invalid Credentials!"));
       }
+      console.log(user);
 
       sendToken(user, 201, res);
     } catch (e) {}

@@ -4,6 +4,9 @@ const sendToken = (user, statusCode, res) => {
   const token = user.getJwtToken();
   console.log(new Date(Date.now()));
 
+  console.log("send token is called");
+  
+
   //options for Cookies
   const options = {
     expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
