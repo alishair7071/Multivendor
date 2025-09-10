@@ -10,8 +10,7 @@ const jwt = require("jsonwebtoken");
 const catchAsyncError = require("../middleware/catchAsyncError.js");
 const sendToken = require("../utils/jwtToken.js");
 const { isAuthenticated, isAdmin } = require("../middleware/auth.js");
-const cloudinary = require("cloudinary");
-
+const cloudinary = require("../cloudinary.js");
 
 //create activation token
 const createActivationToken = (user) => {
@@ -22,7 +21,6 @@ const createActivationToken = (user) => {
 
 router.post("/create-user", upload.single("file"), async (req, res, next) => {
   try {
-
     console.log(req.body.name);
     const { name, email, password, file } = req.body;
     const userEmail = await User.findOne({ email });
@@ -31,38 +29,42 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
       return next(new ErrorHandler("User already exists", 400));
     }
 
+    const result = await cloudinary.v2.uploader.upload_stream(
+      { folder: "avatars" },
+      async (error, result) => {
+        if (error) return next(new ErrorHandler(error.message, 500));
 
-    const myCloud= await cloudinary.v2.uploader.upload(file, {
-      folder: "avatars"
-    });
+        const user = {
+          name: name,
+          email: email,
+          password: password,
+          avatar: {
+            public_id: result.public_id,
+            url: result.secure_url,
+          },
+        };
 
-    const user = {
-      name: name,
-      email: email,
-      password: password,
-      avatar: {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url
-      },
-    };
+        const activationToken = createActivationToken(user);
+        const activationUrl = `https://frontend-multivendor.netlify.app/activation/${activationToken}`;
 
-    const activationToken = createActivationToken(user);
+        try {
+          await sendMail({
+            mail: user.email,
+            subject: "Activate your account",
+            message: `Hello ${user.name}, please click on the link to activate your account: ${activationUrl}`,
+          });
 
-    const activationUrl = `http://localhost:5173/activation/${activationToken}`;
+          res.status(201).json({
+            message: `Please check your email:- ${user.email} to confirm your account`,
+          });
+        } catch (e) {
+          return next(new ErrorHandler(e.message, 500));
+        }
+      }
+    );
 
-    try {
-      await sendMail({
-        mail: user.email,
-        subject: "Activate your account",
-        message: `Hello ${user.name}, please click on the link to activate your account: ${activationUrl}`,
-      });
-
-      res.status(201).json({
-        message: `Please check your email:- ${user.email} to confirm your account`,
-      });
-    } catch (e) {
-      return next(new ErrorHandler(e.message, 500));
-    }
+    // Pipe the buffer to cloudinary
+    result.end(req.file.buffer);
   } catch (e) {
     return next(new ErrorHandler(e.message, 500));
   }

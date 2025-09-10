@@ -5,7 +5,6 @@ const ErrorHandler = require("../middleware/error.js");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const cloudinary = require("cloudinary");
 
 // Handle uncaught exceptions
 process.on("uncaughtException", (err) => {
@@ -37,12 +36,6 @@ app.use("/test", (req, res) => {
 
 // Connect DB
 connectDatabase();
-
-cloudinary.config({
-  cloud_name: "dqf4fxp4x",
-  api_key: "744127157597433",
-  api_secret: "NuleBAZD0CDcgJseAwphgug2W0w",
-});
 
 // Routes
 const user = require("../controller/user.js");
