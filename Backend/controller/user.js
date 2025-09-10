@@ -10,6 +10,8 @@ const jwt = require("jsonwebtoken");
 const catchAsyncError = require("../middleware/catchAsyncError.js");
 const sendToken = require("../utils/jwtToken.js");
 const { isAuthenticated, isAdmin } = require("../middleware/auth.js");
+const cloudinary = require("cloudinary");
+
 
 //create activation token
 const createActivationToken = (user) => {
@@ -18,34 +20,29 @@ const createActivationToken = (user) => {
   });
 };
 
-router.post("/create-user", upload.single("file"), async (req, res, next) => {
+router.post("/create-user", async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, file } = req.body;
     const userEmail = await User.findOne({ email });
 
     if (userEmail) {
-      const filename = req.file.filename;
-      const filePath = `uploads/${filename}`;
-      fs.unlink(filePath, (err) => {
-        if (err) {
-          next(
-            new ErrorHandler("User already exists and pic is not deleted", 400)
-          );
-        } else {
-          next(new ErrorHandler("User already exists", 400));
-        }
-      });
-      return;
+      return next(new ErrorHandler("User already exists", 400));
     }
 
-    const filename = req.file.filename;
-    const fileUrl = path.join(filename);
+
+
+    const myCloud= await cloudinary.v2.uploader.upload(file, {
+      folder: "avatars"
+    });
 
     const user = {
       name: name,
       email: email,
       password: password,
-      avatar: fileUrl,
+      avatar: {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url
+      },
     };
 
     const activationToken = createActivationToken(user);
@@ -180,7 +177,7 @@ router.get(
         secure: true,
         path: "/",
       });
-      
+
       res.status(200).json({
         success: true,
         message: "Log out successful!",
