@@ -49,7 +49,7 @@ router.post("/create-shop", upload.single("file"), async (req, res, next) => {
         };
 
         const activationToken = createActivationToken(seller);
-        const activationUrl = `http://localhost:5173/seller/activation/${activationToken}`;
+        const activationUrl = `https://frontend-multivendor.netlify.app/seller/activation/${activationToken}`;
 
         try {
           await sendMail({
