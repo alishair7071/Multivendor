@@ -30,6 +30,8 @@ const ProductDetails = ({ data }) => {
   const { cart } = useSelector((state) => state.cart);
   const { user, isAuthenticated } = useSelector((state) => state.user);
 
+  console.log(data);
+
   useEffect(() => {
     dispatch(getAllProductsShop(data?.shop._id));
 
