@@ -31,7 +31,7 @@ const ProductDetails = ({ data }) => {
   const { user, isAuthenticated } = useSelector((state) => state.user);
 
   console.log(data);
-  console.log(data.images[select].url);
+  console.log(data.images[0].url);
 
   useEffect(() => {
     dispatch(getAllProductsShop(data?.shop._id));
