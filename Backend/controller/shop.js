@@ -11,6 +11,8 @@ const Shop = require("../model/shop.js");
 const catchAsyncError = require("../middleware/catchAsyncError.js");
 const ErrorHandler = require("../utils/ErrorHandler.js");
 const sendShopToken = require("../utils/shopToken.js");
+const cloudinary = require("../cloudinary.js");
+
 
 //create activation token
 const createActivationToken = (user) => {
