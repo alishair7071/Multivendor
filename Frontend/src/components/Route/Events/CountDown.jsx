@@ -16,7 +16,7 @@ const CountDown = ({ data }) => {
     if (Object.keys(timeLeft).length == 0) {
       console.log("entered in times'up");
       axios
-        .delete(`${server}/event/delete-shop-event/${data._id}`)
+        .delete(`${server}/event/delete-shop-event/${data?._id}`)
         .then((res) => {
           dispatch(getAllEvents());
         });
