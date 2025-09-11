@@ -31,6 +31,7 @@ const ProductDetails = ({ data }) => {
   const { user, isAuthenticated } = useSelector((state) => state.user);
 
   console.log(data);
+  console.log(data.images[select].url);
 
   useEffect(() => {
     dispatch(getAllProductsShop(data?.shop._id));
@@ -51,7 +52,6 @@ const ProductDetails = ({ data }) => {
   const incrementCount = () => {
     setCount(count + 1);
   };
-
 
   const handleMessageSubmit = async () => {
     const groupTitle = data.shop._id + user._id;
