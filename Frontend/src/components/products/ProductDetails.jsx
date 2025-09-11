@@ -124,7 +124,7 @@ const ProductDetails = ({ data }) => {
             <div className="block w-full md:flex">
               <div className="w-full md:w-[50%]">
                 <img
-                  src={`${backend_url}/${data.images[select]}`}
+                  src={`${data.images[select]?.url}`}
                   alt=""
                   className="w-[80%] mb-4"
                 />
@@ -135,7 +135,7 @@ const ProductDetails = ({ data }) => {
                     } cursor-pointer mr-2`}
                   >
                     <img
-                      src={`${backend_url}/${data.images && data.images[0]}`}
+                      src={`${data.images && data.images[0]?.url}`}
                       alt=""
                       className="h-[180px]"
                       onClick={() => setSelect(0)}
@@ -147,7 +147,7 @@ const ProductDetails = ({ data }) => {
                     } cursor-pointer`}
                   >
                     <img
-                      src={`${backend_url}/${data.images && data.images[1]}`}
+                      src={`${data.images && data.images[1].url}`}
                       alt=""
                       className="h-[180px]"
                       onClick={() => setSelect(1)}
@@ -221,7 +221,7 @@ const ProductDetails = ({ data }) => {
                 <div className="flex items-center pt-8">
                   <Link to={`/shop/preview/${data?.shop._id}`}>
                     <img
-                      src={`${backend_url}/${data?.shop?.avatar}`}
+                      src={`${data?.shop?.avatar?.url}`}
                       className="w-[50px] h-[50px] rounded-full mr-2"
                       alt=""
                     />
@@ -323,7 +323,7 @@ const ProductDetailsInfo = ({
               ? data.reviews.map((item, index) => (
                   <div className="w-full flex my-2">
                     <img
-                      src={`${backend_url}/${item.user.avatar}`}
+                      src={`/${item.user.avatar?.url}`}
                       alt=""
                       className="w-[50px] h-[50px] rounded-full"
                     />
@@ -352,7 +352,7 @@ const ProductDetailsInfo = ({
             <Link to={`/shop/preview/${data.shop._id}`}>
               <div className="flex items-center">
                 <img
-                  src={`${backend_url}/${data.shop.avatar}`}
+                  src={`${data.shop.avatar?.url}`}
                   className="w-[50px] h-[50px] rounded-full"
                   alt=""
                 />
