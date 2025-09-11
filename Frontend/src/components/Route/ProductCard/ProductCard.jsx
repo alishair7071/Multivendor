@@ -66,7 +66,7 @@ const ProductCard = ({ data, isEvent }) => {
         <div className="flex justify-end flex-col"> </div>
         <Link to={ isEvent ? `/product/${data._id}?isEvent=true` : `/product/${data._id}`}>
           <img
-            src={`${backend_url}/${data.images[0]}`}
+            src={`${data.images[0]?.url}`}
             className="w-full h-[170px] object-contain"
             alt=""
           />

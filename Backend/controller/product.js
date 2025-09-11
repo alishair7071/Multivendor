@@ -8,6 +8,7 @@ const Shop = require("../model/shop");
 const { isSeller, isAuthenticated, isAdmin } = require("../middleware/auth");
 const fs = require("fs");
 const Order = require("../model/order");
+const cloudinary = require("../cloudinary.js");
 
 //create product
 router.post(
@@ -17,22 +18,44 @@ router.post(
     try {
       const shopId = req.body.shopId;
       const shop = await Shop.findById(shopId);
+
       if (!shop) {
         return next(new ErrorHandler("shop id is invalid!", 400));
-      } else {
-        const files = req.files;
-        const imageUrls = files.map((file) => `${file.filename}`);
-        const productData = req.body;
-        productData.images = imageUrls;
-        productData.shop = shop;
-
-        const product = await Product.create(productData);
-
-        res.status(201).json({
-          success: true,
-          product,
-        });
       }
+      const productData = req.body;
+      productData.shop = shop;
+
+      const uploadImages= [];
+
+      for (const file of req.files) {
+        const result = await new Promise((resolve, reject) => {
+          const stream = cloudinary.v2.uploader.upload_stream(
+            {
+              folder: "products_images",
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+
+          stream.end(file.buffer);
+        });
+
+        uploadImages.push({
+          public_id: result.public_id,
+          url: result.secure_url
+        })
+      }
+
+      productData.images = uploadImages;
+
+      const product = await Product.create(productData);
+
+      res.status(201).json({
+        success: true,
+        product,
+      });
     } catch (e) {
       return next(new ErrorHandler(e.message, 400));
     }

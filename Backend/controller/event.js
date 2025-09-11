@@ -8,6 +8,7 @@ const router = express.Router();
 const Event = require("../model/event");
 const { isSeller, isAdmin, isAuthenticated } = require("../middleware/auth");
 const fs = require("fs");
+const cloudinary = require("../cloudinary.js");
 
 //create event product
 router.post(
@@ -19,26 +20,47 @@ router.post(
       const shop = await Shop.findById(shopId);
       if (!shop) {
         return next(new ErrorHandler("shop id is invalid!", 400));
-      } else {
-        const files = req.files;
-        const imageUrls = files.map((file) => `${file.filename}`);
-        const eventData = req.body;
-        eventData.images = imageUrls;
-        eventData.shop = shop;
+      }
 
-        const product = await Event.create(eventData);
+      const eventData = req.body;
+      eventData.shop = shop;
 
-        res.status(201).json({
-          success: true,
-          product,
+      const uploadImages = [];
+
+      for (const file of req.files) {
+        const result = await new Promise((resolve, reject) => {
+          const stream = cloudinary.v2.uploader.upload_stream(
+            {
+              folder: "products_images",
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+
+          stream.end(file.buffer);
+        });
+
+        uploadImages.push({
+          public_id: result.public_id,
+          url: result.secure_url,
         });
       }
+
+      eventData.images = uploadImages;
+
+      const product = await Event.create(eventData);
+
+      res.status(201).json({
+        success: true,
+        product,
+      });
     } catch (e) {
       return next(new ErrorHandler(e.message, 400));
     }
   })
 );
-
 
 // get all events
 router.get("/get-all-events", async (req, res, next) => {
@@ -52,7 +74,6 @@ router.get("/get-all-events", async (req, res, next) => {
     return next(new ErrorHandler(error, 400));
   }
 });
-
 
 //get all events of a shop
 router.get(
@@ -95,7 +116,6 @@ router.delete(
 
       const event = await Event.findByIdAndDelete(eventId);
 
-
       res.status(201).json({
         success: true,
         message: "Event deleted successfully",
@@ -106,8 +126,6 @@ router.delete(
     }
   })
 );
-
-
 
 // all events --- for admin
 router.get(
@@ -128,6 +146,5 @@ router.get(
     }
   })
 );
-
 
 module.exports = router;

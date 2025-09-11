@@ -34,7 +34,7 @@ const EventCard = ({ active, data }) => {
     >
       <div className="w-full mr-4 lg:w-[50%] m-auto">
         <img
-          src={`${backend_url}/${data?.images[0]}`}
+          src={`${data?.images[0]?.url}`}
           alt=""
           className="rounded-lg"
         />
