@@ -92,7 +92,7 @@ const UserOrderDetails = () => {
           <div className="w-full flex items-start mb-5">
             <div className="w-[80px] md:w-[150px] h-[80px] md:h-[150px]">
               <img
-                src={`${backend_url}/${item.images[0]}`}
+                src={`${item.images[0]?.url}`}
                 alt=""
                 className="w-[80px] md:w-[150px] h-[80px] md:h-[150px] object-cover"
               />
@@ -138,7 +138,7 @@ const UserOrderDetails = () => {
             <br />
             <div className="w-full flex">
               <img
-                src={`${backend_url}/${selectedItem?.images[0]}`}
+                src={`${selectedItem?.images[0]?.url}`}
                 alt=""
                 className="w-[80px] h-[80px]"
               />
