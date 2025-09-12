@@ -283,7 +283,7 @@ const Header = ({ activeHeading }) => {
                           <Link to={`/product/${i._id}`}>
                             <div className="w-full flex items-start py-3">
                               <img
-                                src={`${backend_url}/${i.images[0]}`}
+                                src={`${i.images[0]?.url}`}
                                 alt=""
                                 className="w-[40px] h-[40px] mr-[10px]"
                               />
@@ -315,7 +315,7 @@ const Header = ({ activeHeading }) => {
                     {" "}
                     <img
                       className="h-[60px] w-[60px] rounded-full border-[3px] border-[#16c0b2]"
-                      src={`${backend_url}/${user.avatar}`}
+                      src={`${user.avatar?.url}`}
                       alt=""
                     />
                   </Link>

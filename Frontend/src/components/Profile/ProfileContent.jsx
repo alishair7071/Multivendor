@@ -75,7 +75,7 @@ const ProfileContent = ({ active }) => {
             <div className="relative">
               <img
                 className="rounded-full w-[150px] h-[150px] border-[3px] border-[#3ad132] object-cover"
-                src={`${backend_url}/${user?.avatar}`}
+                src={`${user?.avatar?.url}`}
                 alt=""
               />
               <div

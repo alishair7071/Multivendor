@@ -60,6 +60,8 @@ const ProductCard = ({ data, isEvent }) => {
     }
   };
 
+  console.log(data.images);
+
   return (
     <>
       <div className="w-full h-[370px] bg-white rounded-lg shadow-sm p-3 relative cursor-pointer">

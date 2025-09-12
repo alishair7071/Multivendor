@@ -16,6 +16,9 @@ const ProductDetailsPage = () => {
   const [searchParams] = useSearchParams();
   const isEvent = searchParams.get("isEvent");
 
+  console.log("from product detail page");
+  console.log(data);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);

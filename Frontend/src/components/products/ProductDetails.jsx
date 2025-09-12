@@ -30,6 +30,7 @@ const ProductDetails = ({ data }) => {
   const { cart } = useSelector((state) => state.cart);
   const { user, isAuthenticated } = useSelector((state) => state.user);
 
+  console.log("from product details");
   console.log(data);
 
 
