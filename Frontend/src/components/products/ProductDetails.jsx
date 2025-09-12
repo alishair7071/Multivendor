@@ -127,7 +127,7 @@ const ProductDetails = ({ data }) => {
             <div className="block w-full md:flex">
               <div className="w-full md:w-[50%]">
                 <img
-                  src={`${data.images && data.images[0]?.url}`}
+                  src={`${data.images && data.images[select] && data.images[select]?.url}`}
                   alt=""
                   className="w-[80%] mb-4"
                 />
@@ -150,7 +150,7 @@ const ProductDetails = ({ data }) => {
                     } cursor-pointer`}
                   >
                     <img
-                      src={`${data.images && data.images[0]?.url}`}
+                      src={`${data.images[1] && data.images[1]?.url}`}
                       alt=""
                       className="h-[180px]"
                       onClick={() => setSelect(1)}
