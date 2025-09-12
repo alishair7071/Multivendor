@@ -6,47 +6,48 @@ const Messages = require("../model/messages");
 const { upload } = require("../multer");
 const cloudinary = require("../cloudinary.js");
 
+// Create new message
 router.post(
   "/create-new-message",
   upload.single("images"),
   catchAsyncError(async (req, res, next) => {
     try {
       const messageData = {};
-      console.log(req.file);
-      uploadedImage = {};
 
-      if (req.file) {
-        messageData.images = req.file.filename;
-      }
-
-      const result = await cloudinary.v2.uploader.upload_stream(
+      // Upload image to Cloudinary
+      const uploadStream = cloudinary.v2.uploader.upload_stream(
         { folder: "messages_image" },
         async (error, result) => {
           if (error) return next(new ErrorHandler(error.message, 500));
 
-          uploadedImage.public_id = result.public_id;
-          uploadedImage.url = result.secure_url;
+          // Store uploaded image info
+          const uploadedImage = {
+            public_id: result.public_id,
+            url: result.secure_url,
+          };
+
+          // Build message data
+          messageData.images = uploadedImage;
+          messageData.conversationId = req.body.conversationId;
+          messageData.sender = req.body.sender;
+          messageData.text = req.body.text;
+
+          // Save message in DB
+          const message = new Messages(messageData);
+          await message.save();
+
+          // Send response
+          res.status(201).json({
+            success: true,
+            message,
+          });
         }
       );
 
-      // Pipe the buffer to cloudinary
-      result.end(req.file.buffer);
-
-      messageData.images = uploadedImage;
-      messageData.conversationId = req.body.conversationId;
-      messageData.sender = req.body.sender;
-      messageData.text = req.body.text;
-
-      const message = new Messages(messageData);
-
-      await message.save();
-
-      res.status(201).json({
-        success: true,
-        message,
-      });
+      // Pipe the buffer to cloudinary (starts upload)
+      uploadStream.end(req.file.buffer);
     } catch (error) {
-      return next(new ErrorHandler(error.message), 500);
+      return next(new ErrorHandler(error.message, 500));
     }
   })
 );
