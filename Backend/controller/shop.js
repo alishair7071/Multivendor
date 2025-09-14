@@ -17,7 +17,7 @@ const cloudinary = require("../cloudinary.js");
 //create activation token
 const createActivationToken = (user) => {
   return jwt.sign(user, process.env.ACTIVATION_SECRET, {
-    expiresIn: "5m",
+    expiresIn: "15m",
   });
 };
 
