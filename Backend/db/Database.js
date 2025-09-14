@@ -2,8 +2,7 @@ const mongoose = require("mongoose");
 
 const connectDatabase = () => {
   mongoose
-    .connect(
-      "mongodb+srv://alishair7071:O6Mqg3Vutby5DBib@cluster0.uxswtqf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+    .connect("mongodb://alishair7071:FlutterNodeReact@ac-jh6zjts-shard-00-00.oqi8n7w.mongodb.net:27017,ac-jh6zjts-shard-00-01.oqi8n7w.mongodb.net:27017,ac-jh6zjts-shard-00-02.oqi8n7w.mongodb.net:27017/multivendor_db?ssl=true&replicaSet=atlas-sackt4-shard-0&authSource=admin&retryWrites=true&w=majority&appName=SocialMedia-cluster",
       {
         useNewUrlParser: true,
       }
