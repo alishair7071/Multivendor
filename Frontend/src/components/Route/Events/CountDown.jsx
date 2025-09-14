@@ -13,16 +13,18 @@ const CountDown = ({ data }) => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
 
-    if (Object.keys(timeLeft).length == 0) {
+   /* if (Object.keys(timeLeft).length == 0) {
       console.log("entered in times'up");
       axios
         .delete(`${server}/event/delete-shop-event/${data?._id}`)
         .then((res) => {
           dispatch(getAllEvents());
-        });
+        }
+          );
+        
       return;
     }
-
+*/
     return () => clearTimeout(timer);
   }, [timeLeft]);
 
