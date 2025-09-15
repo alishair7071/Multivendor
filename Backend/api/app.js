@@ -34,8 +34,7 @@ app.use("/test", (req, res) => {
   res.send("hello world");
 });
 
-// Connect DB
-connectDatabase();
+
 
 // Routes
 const user = require("../controller/user.js");
@@ -64,11 +63,13 @@ app.use("/api/v2/withdraw", withdraw);
 app.use(ErrorHandler);
 
 
-//create server
+//listen server && connect Database
+
+connectDatabase().then(()=>{
 app.listen(process.env.PORT, ()=>{
     console.log("abc");
     console.log(`Server is running on the port: ${process.env.PORT}`);
 });
-
+})
 // Instead of app.listen(), export the app for Vercel
 module.exports = app;
