@@ -63,13 +63,12 @@ app.use("/api/v2/withdraw", withdraw);
 // Error handling
 app.use(ErrorHandler);
 
-/*
+
 //create server
 app.listen(process.env.PORT, ()=>{
     console.log("abc");
     console.log(`Server is running on the port: ${process.env.PORT}`);
 });
-*/
 
 // Instead of app.listen(), export the app for Vercel
 module.exports = app;
