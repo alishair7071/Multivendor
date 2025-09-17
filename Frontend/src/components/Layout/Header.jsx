@@ -104,7 +104,7 @@ const Header = ({ activeHeading }) => {
 
       {/* Main nav */}
       <div
-        className="shadow-sm sticky top-0 left-0 z-20 hidden md:flex items-center w-full h-[70px] bg-gradient-to-r from-emerald-500 to-teal-600
+        className="shadow-sm sticky top-0 left-0 z-10 hidden md:flex items-center w-full h-[70px] bg-gradient-to-r from-emerald-500 to-teal-600
 "
       >
         <div
@@ -180,7 +180,7 @@ const Header = ({ activeHeading }) => {
       {openWishList && <WishList setOpenWishList={setOpenWishList} />}
 
       {/* Mobile header */}
-      <div className="w-full h-[60px] fixed z-50 bg-white top-0 left-0 md:hidden flex items-center justify-between px-4 shadow">
+      <div className="w-full h-[60px] fixed z-20 bg-white top-0 left-0 md:hidden flex items-center justify-between px-4 shadow">
         <BiMenuAltLeft
           size={35}
           className="cursor-pointer"

@@ -7,7 +7,7 @@ import {
   AiOutlineMessage,
   AiOutlineShoppingCart,
 } from "react-icons/ai";
-import { backend_url, server } from "../../server";
+import { server } from "../../server";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllProductsShop } from "../../redux/actions/product";
 import {
@@ -30,10 +30,6 @@ const ProductDetails = ({ data }) => {
   const { cart } = useSelector((state) => state.cart);
   const { user, isAuthenticated } = useSelector((state) => state.user);
 
-  console.log("from product details");
-  console.log(data);
-
-
   useEffect(() => {
     dispatch(getAllProductsShop(data?.shop._id));
 
@@ -55,8 +51,7 @@ const ProductDetails = ({ data }) => {
   };
 
   const handleMessageSubmit = async () => {
-
-    if(isAuthenticated == false){
+    if (isAuthenticated == false) {
       toast.error("please login to send message");
       return;
     }
@@ -84,13 +79,11 @@ const ProductDetails = ({ data }) => {
   };
 
   const removeFromWishlistHandler = (data) => {
-    console.log("Removing from wishlist", data);
     setClick(!click);
     dispatch(removeFromWishlistFun(data));
   };
 
   const addToWishlistHandler = (data) => {
-    console.log("Adding to wishlist", data);
     setClick(!click);
     dispatch(addToWishlistFun(data));
   };
@@ -131,6 +124,7 @@ const ProductDetails = ({ data }) => {
         <div className={`${styles.section} w-[90%] md:w-[80%]`}>
           <div className="w-full py-5">
             <div className="block w-full md:flex">
+              {/* Product images */}
               <div className="w-full md:w-[50%]">
                 <img
                   src={`${data.images && data.images[select] && data.images[select]?.url}`}
@@ -140,7 +134,9 @@ const ProductDetails = ({ data }) => {
                 <div className="w-full flex">
                   <div
                     className={`${
-                      select == 0 ? "border" : "null"
+                      select == 0
+                        ? "border-2 border-indigo-500 rounded"
+                        : "border"
                     } cursor-pointer mr-2`}
                   >
                     <img
@@ -152,7 +148,9 @@ const ProductDetails = ({ data }) => {
                   </div>
                   <div
                     className={`${
-                      select == 1 ? "border" : "null"
+                      select == 1
+                        ? "border-2 border-indigo-500 rounded"
+                        : "border"
                     } cursor-pointer`}
                   >
                     <img
@@ -164,6 +162,8 @@ const ProductDetails = ({ data }) => {
                   </div>
                 </div>
               </div>
+
+              {/* Product info */}
               <div className="ml-5 w-full md:w-[50%] pt-5">
                 <h1 className={`${styles.productTitle}`}>{data.name}</h1>
                 <p>{data.description}</p>
@@ -176,10 +176,11 @@ const ProductDetails = ({ data }) => {
                   </h3>
                 </div>
 
+                {/* Quantity and Wishlist */}
                 <div className="flex items-center mt-12 justify-between pr-3">
                   <div>
                     <button
-                      className="bg-gradient-to-r from-teal-400 to-teal-500 text-white font-bold rounded-l px-4 py-2 shadow-lg hover:opacity-75 transition duration-300 ease-in-out"
+                      className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-l px-4 py-2 shadow-lg hover:opacity-80 transition duration-300 ease-in-out"
                       onClick={decrementCount}
                     >
                       -
@@ -190,7 +191,7 @@ const ProductDetails = ({ data }) => {
                     </span>
 
                     <button
-                      className="bg-gradient-to-r from-teal-400 to-teal-500 text-white font-bold rounded-r px-4 py-2 shadow-lg hover:opacity-75 transition duration-300 ease-in-out"
+                      className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-r px-4 py-2 shadow-lg hover:opacity-80 transition duration-300 ease-in-out"
                       onClick={incrementCount}
                     >
                       +
@@ -218,8 +219,9 @@ const ProductDetails = ({ data }) => {
                   </div>
                 </div>
 
+                {/* Add to cart */}
                 <div
-                  className={`${styles.button} !mt-6 !rounded !h-11 flex items-center`}
+                  className={`${styles.button} !mt-6 !rounded !h-11 flex items-center bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-90`}
                   onClick={() => addToCartHandler(data._id)}
                 >
                   <span className="flex items-center text-white">
@@ -227,6 +229,7 @@ const ProductDetails = ({ data }) => {
                   </span>
                 </div>
 
+                {/* Seller Info + Message */}
                 <div className="flex items-center pt-8">
                   <Link to={`/shop/preview/${data?.shop._id}`}>
                     <img
@@ -247,7 +250,7 @@ const ProductDetails = ({ data }) => {
                   </div>
 
                   <div
-                    className={`${styles.button} !bg-[#6443d1] mt-4 !rounded !h-11`}
+                    className={`${styles.button} !bg-gradient-to-r from-indigo-500 to-purple-600 mt-4 !rounded !h-11`}
                     onClick={() => handleMessageSubmit()}
                   >
                     <span className="text-white flex items-center">
@@ -285,44 +288,43 @@ const ProductDetailsInfo = ({
       <div className="w-full flex justify-between border-b pt-10 pb-2">
         <div className="relative">
           <h5
-            className="text-[#000] text-[18px] px-1 leading-5 font-[600] cursor-pointer md:text-[20px]"
+            className={`${
+              active === 1 ? "text-indigo-600" : "text-gray-800"
+            } text-[18px] px-1 leading-5 font-[600] cursor-pointer md:text-[20px]`}
             onClick={() => setActive(1)}
           >
             Product Details
           </h5>
-          {active == 1 ? (
-            <div className={`${styles.active_indicator}`} />
-          ) : null}
+          {active == 1 ? <div className={`${styles.active_indicator}`} /> : null}
         </div>
         <div className="relative">
           <h5
-            className="text-[#000] text-[18px] px-1 leading-5 font-[600] cursor-pointer md:text-[20px]"
+            className={`${
+              active === 2 ? "text-indigo-600" : "text-gray-800"
+            } text-[18px] px-1 leading-5 font-[600] cursor-pointer md:text-[20px]`}
             onClick={() => setActive(2)}
           >
             Product Reviews
           </h5>
-          {active == 2 ? (
-            <div className={`${styles.active_indicator}`} />
-          ) : null}
+          {active == 2 ? <div className={`${styles.active_indicator}`} /> : null}
         </div>
         <div className="relative">
           <h5
-            className="text-[#000] text-[18px] px-1 leading-5 font-[600] cursor-pointer md:text-[20px]"
+            className={`${
+              active === 3 ? "text-indigo-600" : "text-gray-800"
+            } text-[18px] px-1 leading-5 font-[600] cursor-pointer md:text-[20px]`}
             onClick={() => setActive(3)}
           >
             Seller Information
           </h5>
-          {active == 3 ? (
-            <div className={`${styles.active_indicator}`} />
-          ) : null}
+          {active == 3 ? <div className={`${styles.active_indicator}`} /> : null}
         </div>
       </div>
+
       {active == 1 ? (
-        <>
-          <p className="py-2 text-[18px] leading-8 pb-10 whitespace-pre-line">
-            {data.description}
-          </p>
-        </>
+        <p className="py-2 text-[18px] leading-8 pb-10 whitespace-pre-line">
+          {data.description}
+        </p>
       ) : null}
 
       {active == 2 ? (
@@ -330,7 +332,7 @@ const ProductDetailsInfo = ({
           {data &&
             (data.reviews
               ? data.reviews.map((item, index) => (
-                  <div className="w-full flex my-2">
+                  <div className="w-full flex my-2" key={index}>
                     <img
                       src={`/${item.user.avatar?.url}`}
                       alt=""
@@ -393,7 +395,7 @@ const ProductDetailsInfo = ({
               </h5>
               <Link to={`/shop/preview/${data.shop._id}`}>
                 <div
-                  className={`${styles.button} !rounded-[4px] !h-[39.5px] mt-3`}
+                  className={`${styles.button} !rounded-[4px] !h-[39.5px] mt-3 bg-gradient-to-r from-indigo-500 to-purple-600`}
                 >
                   <h4 className="text-white">Visit Shop</h4>
                 </div>

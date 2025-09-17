@@ -1,14 +1,10 @@
 import React, { useState } from "react";
 import { RxCross1 } from "react-icons/rx";
 import styles from "../../styles/styles";
-import { IoBagHandleOutline } from "react-icons/io5";
-import { HiOutlineMinus, HiPlus } from "react-icons/hi";
-import { Link } from "react-router-dom";
-import { BsCartPlus } from "react-icons/bs";
 import { AiOutlineHeart } from "react-icons/ai";
+import { BsCartPlus } from "react-icons/bs";
 import { useDispatch, useSelector } from "react-redux";
 import { removeFromWishlistFun } from "../../redux/actions/wishlist";
-import { backend_url } from "../../server";
 import { addToCartFun } from "../../redux/actions/cart";
 
 const WishList = ({ setOpenWishList }) => {
@@ -25,34 +21,41 @@ const WishList = ({ setOpenWishList }) => {
   };
 
   return (
-    <div className="fixed top-0 left-0 w-full bg-[#0000004b] h-screen z-10">
-      <div className="fixed top-0 right-0 h-full w-[90%] md:w-[25%] bg-white flex flex-col shadow-sm">
-        <div className="w-full flex justify-end pt-5 pr-5">
+    <div className="fixed top-0 left-0 w-full h-screen bg-black/40 z-10">
+      {/* Slide Panel */}
+      <div className="fixed top-0 right-0 h-full w-[90%] md:w-[28%] bg-white shadow-lg flex flex-col rounded-l-2xl overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex justify-between items-center px-5 py-4">
+          <div className="flex items-center space-x-2">
+            <AiOutlineHeart size={24} />
+            <h2 className="text-lg font-semibold">
+              Wishlist ({wishlist.length})
+            </h2>
+          </div>
           <RxCross1
-            size={25}
-            className="cursor-pointer"
+            size={24}
+            className="cursor-pointer hover:scale-110 transition"
             onClick={() => setOpenWishList(false)}
           />
         </div>
-        {/*item length*/}
-        <div className={`${styles.noramlFlex} p-4`}>
-          <AiOutlineHeart size={25} />
-          <h2 className="pl-2 text-[20px] font-[500]">
-            {wishlist.length} items
-          </h2>
-        </div>
-        {/*Cart single items*/}
-        <br />
-        <div className="w-full border-t">
-          {wishlist &&
-            wishlist.map((i, index) => (
+
+        {/* Wishlist Items */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {wishlist && wishlist.length > 0 ? (
+            wishlist.map((item, index) => (
               <CartSingle
                 key={index}
-                data={i}
+                data={item}
                 removeFromWishlistHandler={removeFromWishlistHandler}
                 addToCartHandler={addToCartHandler}
               />
-            ))}
+            ))
+          ) : (
+            <div className="text-center text-gray-500 mt-10">
+              <AiOutlineHeart size={40} className="mx-auto mb-3" />
+              <p className="text-sm">Your wishlist is empty.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -60,40 +63,44 @@ const WishList = ({ setOpenWishList }) => {
 };
 
 const CartSingle = ({ data, removeFromWishlistHandler, addToCartHandler }) => {
-  const [value, setValue] = useState(1);
+  const [value] = useState(1);
   const totalPrice = data.discountPrice + value;
 
   return (
-    <div className="border-b p-4">
-      <div className="w-full md:flex items-center">
-        <div className="flex justify-end">
-          <RxCross1
-            className="cursor-pointer md:mb-['unset'] md:ml-['unset'] mb-2 ml-2"
-            onClick={() => removeFromWishlistHandler(data)}
-          />
-        </div>
+    <div className="flex items-center bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition p-3">
+      {/* Remove Button */}
+      <button
+        className="text-red-500 hover:text-red-600 mr-2"
+        onClick={() => removeFromWishlistHandler(data)}
+      >
+        <RxCross1 size={20} />
+      </button>
 
-        <img
-          src={`${data?.images[0]?.url}`}
-          alt=""
-          className="w-[80px] h-[80px] ml-2"
-        />
+      {/* Product Image */}
+      <img
+        src={`${data?.images[0]?.url}`}
+        alt={data.name}
+        className="w-[70px] h-[70px] object-cover rounded-lg"
+      />
 
-        <div className="pl-[5px]">
-          <h1>{data.name}</h1>
-          <h4 className="font-[600] text-[17px] pt-[3px] text-[#d02222] font-Roboto">
-            US$ {totalPrice}
-          </h4>
-        </div>
-        <div className="ml-auto flex items-center">
-          <BsCartPlus
-            size={20}
-            className="cursor-pointer"
-            title="Add to cart"
-            onClick={() => addToCartHandler(data)}
-          />
-        </div>
+      {/* Info */}
+      <div className="flex-1 pl-3">
+        <h1 className="font-medium text-gray-800 text-sm truncate">
+          {data.name}
+        </h1>
+        <h4 className="font-semibold text-[16px] text-indigo-600 mt-1">
+          US$ {totalPrice}
+        </h4>
       </div>
+
+      {/* Add to Cart */}
+      <button
+        className="ml-auto bg-gradient-to-r from-indigo-500 to-purple-500 text-white p-2 rounded-lg hover:opacity-90 transition"
+        title="Add to Cart"
+        onClick={() => addToCartHandler(data)}
+      >
+        <BsCartPlus size={18} />
+      </button>
     </div>
   );
 };

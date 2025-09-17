@@ -57,16 +57,18 @@ const EventCard = ({ active, data }) => {
         </div>
         <CountDown data={data} />
         <br />
-        <div className="flex items-center">
+        <div className="flex items-center gap-4 mt-5">
           <Link to={`/product/${data?._id}?isEvent=true`}>
-            <div className={`${styles.button} text-white`}>See Details</div>
+            <button className="px-5 py-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-medium shadow-md hover:opacity-90 transition">
+              See Details
+            </button>
           </Link>
-          <div
+          <button
             onClick={() => addToCartHandler(data)}
-            className={`${styles.button} text-white ml-5`}
+            className="px-5 py-2 rounded-full bg-gradient-to-r from-teal-600 to-emerald-500 text-white font-medium shadow-md hover:opacity-90 transition"
           >
             Add to Cart
-          </div>
+          </button>
         </div>
       </div>
     </div>
