@@ -14,7 +14,7 @@ const Hero = () => {
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/40"></div>
 
-      <div className={`${styles.section} w-[90%] md:w-[65%] relative z-10`}>
+      <div className={`${styles.section} w-[90%] md:w-[65%] relative`}>
         <h1 className="text-[32px] md:text-[58px] font-bold leading-tight capitalize text-white">
           Best Collection for <br />
           <span className="bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
