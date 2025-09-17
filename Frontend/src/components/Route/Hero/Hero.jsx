@@ -5,30 +5,33 @@ import { Link } from "react-router-dom";
 const Hero = () => {
   return (
     <div
-      className={`relative min-h-[70vh] pt-20 md:pt-0 md:min-h-[88vh] w-full bg-no-repeat ${styles.noramlFlex}`}
+      className={`relative min-h-[70vh] md:min-h-[88vh] w-full bg-center bg-cover flex items-center`}
       style={{
         backgroundImage:
           "url(https://themes.rslahmed.dev/rafcart/assets/images/banner-2.jpg)",
       }}
     >
-      <div className={`${styles.section} w-[90%] md:w-[60%]`}>
-        <h1
-          className={`text-[35px] leading-[1.2] md:text-[60px] text-[#3d3a3a] font-[600] capitalize `}
-        >
-          Best Collection for <br /> Home Decoration
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/40"></div>
+
+      <div className={`${styles.section} w-[90%] md:w-[65%] relative z-10`}>
+        <h1 className="text-[32px] md:text-[58px] font-bold leading-tight capitalize text-white">
+          Best Collection for <br />
+          <span className="bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
+            Home Decoration
+          </span>
         </h1>
-        <p className="pt-5 text-[16px] font-[Poppins] font-[400] text-[#000000ba]">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Facilis porro
-          consectetur ratione, temporibus
-          <br /> cum voluptatibus consequuntur ullam voluptatem odio id <br />{" "}
-          incidunt sed iste tempora a tenetur quidem autem nesciunt recusandae.
+
+        <p className="mt-5 text-[16px] md:text-[18px] text-gray-200 leading-relaxed">
+          Discover premium home décor items designed to bring comfort and style
+          to your living space. Handpicked collections that fit every modern
+          lifestyle.
         </p>
+
         <Link to="/products" className="inline-block">
-          <div className={`${styles.button} mt-5`}>
-            <span className="text-[#fff] font-[Poppins] text-[18px]">
-              Shop Now
-            </span>
-          </div>
+          <button className="mt-7 px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-[17px] font-medium shadow-lg hover:scale-105 transition-transform">
+            Shop Now
+          </button>
         </Link>
       </div>
     </div>
