@@ -99,6 +99,8 @@ flowchart LR
 
     API --> Stripe
     API --> PayPal
+    
+
 
 
 At a high level, the system follows a client-server architecture:  
