@@ -145,7 +145,68 @@ At a high level, the system follows a client-server architecture:
 ---
 
 ## 7. Database Schema (Entities)
-📍 *[Class/ER Diagram Placeholder – will be added later]*  
+```mermaid
+classDiagram
+    class User {
+        +String id
+        +String name
+        +String email
+        +String passwordHash
+        +String role (customer/seller/admin)
+    }
+
+    class Seller {
+        +String id
+        +String shopName
+        +String userId
+    }
+
+    class Product {
+        +String id
+        +String name
+        +Number price
+        +Number stock
+        +String category
+        +String sellerId
+    }
+
+    class Order {
+        +String id
+        +String customerId
+        +List~Product~ products
+        +String status
+        +String paymentId
+    }
+
+    class Payment {
+        +String id
+        +String orderId
+        +String method (Stripe/PayPal)
+        +String status
+        +Number amount
+    }
+
+    class Message {
+        +String id
+        +String senderId
+        +String receiverId
+        +String content
+        +Date timestamp
+    }
+
+    %% Relationships
+    User "1" --> "1" Seller : owns
+    Seller "1" --> "many" Product : lists
+    User "1" --> "many" Order : places
+    Order "1" --> "many" Product : contains
+    Order "1" --> "1" Payment : paid_with
+    User "1" --> "many" Message : sends
+    User "1" --> "many" Message : receives
+
+```
+
+
+---
 
 **Main Entities:**  
 - User (id, name, email, role, passwordHash)  
