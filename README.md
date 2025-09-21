@@ -98,10 +98,12 @@ flowchart LR
     S <-->|Chat| Socket
 
     API --> Stripe
-    API --> PayPal```
+    API --> PayPal
+
+    ```
 
 
-
+---
 
 
 At a high level, the system follows a client-server architecture:  
