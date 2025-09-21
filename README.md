@@ -100,7 +100,7 @@ flowchart LR
     API --> Stripe
     API --> PayPal
 
-    ```
+```
 
 
 ---
