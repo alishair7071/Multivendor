@@ -235,8 +235,6 @@ classDiagram
 5. Order saved in database
 
 
-## 8. Workflows (System Sequence Diagrams)
-
 ### 🛍 Customer Checkout Flow
 ```mermaid
 sequenceDiagram
@@ -267,17 +265,100 @@ sequenceDiagram
 3. Backend updates database  
 4. Products instantly visible to customers
 
+### Seller Product Management Flow
+```mermaid
+sequenceDiagram
+    actor Seller
+    participant Frontend
+    participant Backend
+    participant Database
+
+    Seller ->> Frontend: Login
+    Frontend ->> Backend: Authenticate seller
+    Backend -->> Frontend: Auth success
+
+    Seller ->> Frontend: Add/Update/Delete Product
+    Frontend ->> Backend: Send product request
+    Backend ->> Database: Save product changes
+    Backend -->> Frontend: Confirmation
+    Frontend -->> Seller: Updated product visible
+
+```
+
+
+---
+
+
 **Real-Time Chat Flow**
 1. Customer opens product page → initiates chat with seller
 2. Socket.IO establishes a connection
 3. Messages exchanged in real-time
 4. Messages stored in database for history
 
+
+### 💬 Real-Time Chat Flow (Customer ↔ Seller)
+```mermaid
+sequenceDiagram
+    actor Customer
+    actor Seller
+    participant Frontend
+    participant SocketServer
+    participant Database
+
+    Customer ->> Frontend: Open chat window
+    Frontend ->> SocketServer: Establish socket connection
+    SocketServer ->> Database: Fetch chat history
+    Database -->> SocketServer: Return messages
+    SocketServer -->> Frontend: Display chat history
+
+    Customer ->> Frontend: Send message
+    Frontend ->> SocketServer: Emit message event
+    SocketServer ->> Database: Save message
+    SocketServer -->> Seller: Deliver message in real-time
+
+    Seller ->> Frontend: Reply message
+    Frontend ->> SocketServer: Emit message event
+    SocketServer ->> Database: Save message
+    SocketServer -->> Customer: Deliver message in real-time
+
+```
+
+
+---
+
+
 **Admin Seller Approval Flow**  
 1. Seller requests approval  
 2. Admin reviews request  
 3. Admin approves/rejects seller  
-4. Seller status updated in database  
+4. Seller status updated in database
+
+### Admin Seller Approval Flow
+```mermaid
+sequenceDiagram
+    actor Admin
+    participant Frontend
+    participant Backend
+    participant Database
+
+    Admin ->> Frontend: Login
+    Frontend ->> Backend: Authenticate admin
+    Backend -->> Frontend: Auth success
+
+    Admin ->> Frontend: Review seller requests
+    Frontend ->> Backend: Fetch seller requests
+    Backend ->> Database: Retrieve requests
+    Database -->> Backend: Seller data
+    Backend -->> Frontend: Show seller requests
+
+    Admin ->> Frontend: Approve/Reject seller
+    Frontend ->> Backend: Send approval/rejection
+    Backend ->> Database: Update seller status
+    Backend -->> Frontend: Confirmation
+    Frontend -->> Admin: Updated seller status
+
+```
+
 
 ---
 
