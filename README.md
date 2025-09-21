@@ -225,15 +225,41 @@ classDiagram
 ---
 
 ## 8. Workflows
-
-📍 *[Sequence Diagrams Placeholder – will be added later]*  
+ 
 
 **Customer Checkout Flow**  
 1. Customer adds product to cart  
 2. Customer places order → Backend processes  
 3. Payment request sent to Stripe/PayPal  
 4. Payment confirmation returned  
-5. Order saved in database  
+5. Order saved in database
+
+
+## 8. Workflows (System Sequence Diagrams)
+
+### 🛍 Customer Checkout Flow
+```mermaid
+sequenceDiagram
+    actor Customer
+    participant Frontend
+    participant Backend
+    participant PaymentGateway
+    participant Database
+
+    Customer ->> Frontend: Add product to cart
+    Customer ->> Frontend: Place order
+    Frontend ->> Backend: Send order request
+    Backend ->> PaymentGateway: Initiate payment
+    PaymentGateway -->> Backend: Payment confirmation
+    Backend ->> Database: Save order + payment
+    Backend -->> Frontend: Order confirmation
+    Frontend -->> Customer: Show success message
+
+```
+
+
+---
+
 
 **Seller Product Management Flow**  
 1. Seller logs in → accesses dashboard  
