@@ -65,7 +65,41 @@ A multivendor e-commerce system solves all these challenges by supporting multip
 ---
 
 ## 5. System Architecture
-📍 *[Diagram Placeholder – will be added later]*  
+```mermaid
+flowchart LR
+    subgraph Frontend [Frontend - React]
+        C[Customer]
+        S[Seller]
+        A[Admin]
+    end
+
+    subgraph Backend [Backend - Node.js + Express]
+        API[REST API]
+        Socket[Socket.IO Server]
+    end
+
+    subgraph Database [Database - MongoDB Atlas]
+        DB[(Users, Products, Orders, Payments, Messages)]
+    end
+
+    subgraph Payments [Payment Gateways]
+        Stripe[Stripe API]
+        PayPal[PayPal API]
+    end
+
+    C -->|Browse/Buy| Frontend
+    S -->|Manage Shop| Frontend
+    A -->|Manage Platform| Frontend
+
+    Frontend --> API
+    API --> DB
+    Socket <--> DB
+    C <-->|Chat| Socket
+    S <-->|Chat| Socket
+
+    API --> Stripe
+    API --> PayPal
+
 
 At a high level, the system follows a client-server architecture:  
 
