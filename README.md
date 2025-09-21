@@ -98,8 +98,9 @@ flowchart LR
     S <-->|Chat| Socket
 
     API --> Stripe
-    API --> PayPal
-    
+    API --> PayPal```
+
+
 
 
 
