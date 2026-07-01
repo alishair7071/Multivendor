@@ -21,7 +21,10 @@ export const createEvent = (newForm) => async (dispatch) => {
   try {
     dispatch(eventCreateRequest());
 
-    const config = { headers: { "Content-Type": "multipart/form-data" } };
+    const config = {
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
+    };
     const { data } = await axios.post(
       `${server}/event/create-event`,
       newForm,

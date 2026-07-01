@@ -6,23 +6,23 @@ const Product = require("../model/product");
 const ErrorHandler = require("../utils/ErrorHandler");
 const Shop = require("../model/shop");
 const { isSeller, isAuthenticated, isAdmin } = require("../middleware/auth");
-const fs = require("fs");
 const Order = require("../model/order");
 const cloudinary = require("../cloudinary.js");
 
 //create product
 router.post(
   "/create-product",
+  isSeller,
   upload.array("images"),
   catchAsyncError(async (req, res, next) => {
     try {
-      const shopId = req.body.shopId;
-      const shop = await Shop.findById(shopId);
+      const shop = req.seller;
 
       if (!shop) {
         return next(new ErrorHandler("shop id is invalid!", 400));
       }
       const productData = req.body;
+      productData.shopId = shop._id;
       productData.shop = shop;
 
       const uploadImages= [];
@@ -69,12 +69,12 @@ router.get(
     try {
       const products = await Product.find({ shopId: req.params.id });
 
-      res.status(201).json({
+      res.status(200).json({
         success: true,
         products,
       });
     } catch (error) {
-      return next(new ErrorHandler(e.message, 400));
+      return next(new ErrorHandler(error.message, 400));
     }
   })
 );
@@ -90,31 +90,32 @@ router.delete(
       const productData = await Product.findById(productId);
 
       if (!productData) {
-        return next(new ErrorHandler("product is not found with this id", 500));
+        return next(new ErrorHandler("product is not found with this id", 404));
       }
 
-      productData.images.forEach((image) => {
-        console.log(image);
-      });
+      // make sure the product belongs to the logged-in seller
+      if (productData.shopId !== req.seller._id.toString()) {
+        return next(
+          new ErrorHandler("You are not allowed to delete this product", 403)
+        );
+      }
 
-      productData.images.forEach((imageName) => {
-        const filePath = `uploads/${imageName}`;
-        fs.unlink(filePath, (err) => {
-          if (err) {
-            console.log("error: " + err);
-          }
-        });
-      });
+      // remove the product images from cloudinary
+      for (const image of productData.images) {
+        if (image.public_id) {
+          await cloudinary.v2.uploader.destroy(image.public_id);
+        }
+      }
 
       const product = await Product.findByIdAndDelete(productId);
 
-      res.status(201).json({
+      res.status(200).json({
         success: true,
         message: "Product deleted successfully",
         id: product._id,
       });
     } catch (error) {
-      return next(new ErrorHandler(e.message, 400));
+      return next(new ErrorHandler(error.message, 400));
     }
   })
 );
@@ -145,6 +146,10 @@ router.put(
       const { user, rating, comment, productId, orderId } = req.body;
 
       const product = await Product.findById(productId);
+
+      if (!product) {
+        return next(new ErrorHandler("Product not found", 404));
+      }
 
       const review = {
         user,

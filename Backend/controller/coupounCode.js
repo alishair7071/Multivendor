@@ -60,13 +60,6 @@ router.get(
     try {
       const couponCode = await CoupounCode.findOne({ name: req.params.name });
 
-      if (!couponCode) {
-        return res.status(401).json({
-          success: false,
-          message: "Coupon Code not found",
-        });
-      }
-
       res.status(200).json({
         success: true,
         couponCode,

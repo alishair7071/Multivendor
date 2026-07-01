@@ -1,7 +1,6 @@
 const express = require("express");
 const path = require("path");
 const router = express.Router();
-const fs = require("fs");
 const sendMail = require("../utils/sendMail.js");
 const jwt = require("jsonwebtoken");
 const sendToken = require("../utils/jwtToken.js");
@@ -149,11 +148,14 @@ router.post(
       const isPasswordValid = await user.comparePassword(password);
 
       if (!isPasswordValid) {
-        return next(new ErrorHandler("Invalid Credentials!"));
+        return next(new ErrorHandler("Invalid Credentials!", 400));
       }
 
-      sendShopToken(user, 201, res);
-    } catch (e) {}
+      user.password = undefined;
+      sendShopToken(user, 200, res);
+    } catch (e) {
+      return next(new ErrorHandler(e.message, 500));
+    }
   })
 );
 
@@ -239,18 +241,35 @@ router.put(
         return next(new ErrorHandler("User does not exists", 400));
       }
 
-      const existAvatarPath = `uploads/${existsSeller.avatar}`;
-
-      if (fs.existsSync(existAvatarPath)) {
-        fs.unlinkSync(existAvatarPath); // ✅ deletes synchronously and safely
+      if (!req.file) {
+        return next(new ErrorHandler("Please provide an image", 400));
       }
 
-      console.log(req.seller);
+      // remove the old avatar from cloudinary
+      if (existsSeller.avatar && existsSeller.avatar.public_id) {
+        await cloudinary.v2.uploader.destroy(existsSeller.avatar.public_id);
+      }
 
-      const fileUrl = req.file.filename;
+      // upload the new avatar to cloudinary
+      const result = await new Promise((resolve, reject) => {
+        const stream = cloudinary.v2.uploader.upload_stream(
+          { folder: "avatars" },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(req.file.buffer);
+      });
+
       const seller = await Shop.findByIdAndUpdate(
         req.seller._id,
-        { avatar: fileUrl },
+        {
+          avatar: {
+            public_id: result.public_id,
+            url: result.secure_url,
+          },
+        },
         { new: true }
       );
 
@@ -272,7 +291,7 @@ router.put(
     try {
       const { shopName, description, address, phoneNumber, zipCode } = req.body;
 
-      const shop = await Shop.findOne(req.seller._id);
+      const shop = await Shop.findById(req.seller._id);
 
       if (!shop) {
         return next(new ErrorHandler("User not found", 400));
@@ -303,12 +322,12 @@ router.get(
     try {
       const user = await Shop.findById(req.params.id);
 
-      res.status(201).json({
+      res.status(200).json({
         success: true,
         user,
       });
     } catch (error) {
-      return next(new ErrorHandler(e.message, 500));
+      return next(new ErrorHandler(error.message, 500));
     }
   })
 );

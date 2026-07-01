@@ -2,10 +2,6 @@
 
 const sendToken = (user, statusCode, res) => {
   const token = user.getJwtToken();
-  console.log(new Date(Date.now()));
-
-  console.log("send token is called");
-  
 
   //options for Cookies
   const options = {
@@ -14,10 +10,7 @@ const sendToken = (user, statusCode, res) => {
     sameSite: "None",
     secure: true,
     path: "/",
-
   };
-  console.log("from JWT Token:  sent to client");
-  console.log(user);
 
   res.status(statusCode).cookie("token", token, options).json({
     success: true,

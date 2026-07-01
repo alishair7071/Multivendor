@@ -13,12 +13,13 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate= useNavigate();
 
   const handleSubmit = async (e)=>{
     e.preventDefault();
 
-    console.log("login called");
+    setLoading(true);
 
     try{
       const res= await fetch(`${server}/user/login-user`, {
@@ -36,19 +37,18 @@ const Login = () => {
       const data= await res.json();
       if(data.success== true){
         toast.success("Login Success!");
-        console.log("success");
         dispatch(loadUser());
         navigate("/");
         window.location.reload(true);
       }
       if(data.success==false){
         toast.error(data.message);
-        console.log("error msg from server:  "+data.message)
       }
 
     }catch(e){
-      console.log("catch Error: "+e.message);
       toast.error(e.message);
+    }finally{
+      setLoading(false);
     }
   }
 
@@ -141,10 +141,11 @@ const Login = () => {
               </div>
             </div>
             <div>
-                <button type="submitt" 
-                className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent 
-                text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 hover:cursor-pointer">
-                    Submit
+                <button type="submit"
+                disabled={loading}
+                className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent
+                text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 hover:cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
+                    {loading ? "Submitting..." : "Submit"}
                 </button>
             </div>
 

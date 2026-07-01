@@ -14,7 +14,23 @@ router.post(
   isSeller,
   catchAsyncError(async (req, res, next) => {
     try {
-      const { amount } = req.body;
+      const amount = Number(req.body.amount);
+
+      if (!amount || amount <= 0) {
+        return next(new ErrorHandler("Invalid withdraw amount", 400));
+      }
+
+      const shop = await Shop.findById(req.seller._id);
+
+      if (!shop) {
+        return next(new ErrorHandler("Shop not found", 404));
+      }
+
+      if (amount > shop.availableBalance) {
+        return next(
+          new ErrorHandler("Insufficient balance to withdraw", 400)
+        );
+      }
 
       const data = {
         seller: req.seller,
@@ -23,7 +39,6 @@ router.post(
 
       const withdraw = await Withdraw.create(data);
 
-      const shop = await Shop.findById(req.seller._id);
       shop.availableBalance -= amount;
       await shop.save();
 
@@ -106,7 +121,7 @@ router.put(
           message: `Hello ${seller.shopName}, your withdraw request of $${withdraw.amount} has been approved.`,
         });
       } catch (error) {
-        return next(new ErrorHandler(error.message, 500));
+        console.log("Approval email could not be sent:", error.message);
       }
 
       res.status(200).json({

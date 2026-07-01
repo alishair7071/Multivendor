@@ -7,22 +7,22 @@ const Product = require("../model/product");
 const router = express.Router();
 const Event = require("../model/event");
 const { isSeller, isAdmin, isAuthenticated } = require("../middleware/auth");
-const fs = require("fs");
 const cloudinary = require("../cloudinary.js");
 
 //create event product
 router.post(
   "/create-event",
+  isSeller,
   upload.array("images"),
   catchAsyncError(async (req, res, next) => {
     try {
-      const shopId = req.body.shopId;
-      const shop = await Shop.findById(shopId);
+      const shop = req.seller;
       if (!shop) {
         return next(new ErrorHandler("shop id is invalid!", 400));
       }
 
       const eventData = req.body;
+      eventData.shopId = shop._id;
       eventData.shop = shop;
 
       const uploadImages = [];
@@ -82,12 +82,12 @@ router.get(
     try {
       const events = await Event.find({ shopId: req.params.id });
 
-      res.status(201).json({
+      res.status(200).json({
         success: true,
         events,
       });
     } catch (error) {
-      return next(new ErrorHandler(e.message, 400));
+      return next(new ErrorHandler(error.message, 400));
     }
   })
 );
@@ -95,6 +95,7 @@ router.get(
 //delete shop event
 router.delete(
   "/delete-shop-event/:id",
+  isSeller,
   catchAsyncError(async (req, res, next) => {
     try {
       const eventId = req.params.id;
@@ -102,21 +103,26 @@ router.delete(
       const eventData = await Event.findById(eventId);
 
       if (!eventData) {
-        return next(new ErrorHandler("event is not found with this id", 500));
+        return next(new ErrorHandler("event is not found with this id", 404));
       }
 
-      eventData.images.forEach((imageUrl) => {
-        const filePath = `uploads/${imageUrl}`;
-        fs.unlink(filePath, (err) => {
-          if (err) {
-            console.log(err);
-          }
-        });
-      });
+      // make sure the event belongs to the logged-in seller
+      if (eventData.shopId !== req.seller._id.toString()) {
+        return next(
+          new ErrorHandler("You are not allowed to delete this event", 403)
+        );
+      }
+
+      // remove the event images from cloudinary
+      for (const image of eventData.images) {
+        if (image.public_id) {
+          await cloudinary.v2.uploader.destroy(image.public_id);
+        }
+      }
 
       const event = await Event.findByIdAndDelete(eventId);
 
-      res.status(201).json({
+      res.status(200).json({
         success: true,
         message: "Event deleted successfully",
         id: event._id,

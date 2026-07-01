@@ -28,11 +28,18 @@ router.post(
       const orders = [];
 
       for (const [shopId, items] of shopItemMap) {
+        // each shop's order should only carry the total of its own items,
+        // otherwise every shop gets credited for the whole cart
+        const shopTotalPrice = items.reduce(
+          (acc, item) => acc + item.discountPrice * item.qty,
+          0
+        );
+
         const order = await Order.create({
           cart: items,
           shippingAddress,
           user,
-          totalPrice,
+          totalPrice: shopTotalPrice,
           paymentInfo,
         });
 
@@ -102,9 +109,9 @@ router.put(
         return next(new ErrorHandler("Order not found with this id", 400));
       }
       if (req.body.status === "Transferred to delivery partner") {
-        order.cart.forEach(async (o) => {
+        for (const o of order.cart) {
           await updateOrder(o._id, o.qty);
-        });
+        }
       }
 
       order.status = req.body.status;
@@ -126,6 +133,8 @@ router.put(
 
       async function updateOrder(id, qty) {
         const product = await Product.findById(id);
+
+        if (!product) return;
 
         product.stock -= qty;
         product.sold_out += qty;
@@ -189,19 +198,21 @@ router.put(
 
       await order.save();
 
+      if (req.body.status === "Refund Success") {
+        for (const o of order.cart) {
+          await updateOrder(o._id, o.qty);
+        }
+      }
+
       res.status(200).json({
         success: true,
         message: "Order Refund successfull!",
       });
 
-      if (req.body.status === "Refund Success") {
-        order.cart.forEach(async (o) => {
-          await updateOrder(o._id, o.qty);
-        });
-      }
-
       async function updateOrder(id, qty) {
         const product = await Product.findById(id);
+
+        if (!product) return;
 
         product.stock += qty;
         product.sold_out -= qty;

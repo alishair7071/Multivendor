@@ -10,6 +10,7 @@ const cors = require("cors");
 process.on("uncaughtException", (err) => {
   console.log(`Error: ${err.message}`);
   console.log("Shutting down the server due to uncaught exception");
+  process.exit(1);
 });
 
 dotenv.config();
@@ -65,11 +66,18 @@ app.use(ErrorHandler);
 
 //listen server && connect Database
 
+const PORT = process.env.PORT || 8000;
+
 connectDatabase().then(()=>{
-app.listen(process.env.PORT, ()=>{
-    console.log("abc");
-    console.log(`Server is running on the port: ${process.env.PORT}`);
+app.listen(PORT, ()=>{
+    console.log(`Server is running on the port: ${PORT}`);
 });
 })
+
+// Handle unhandled promise rejections
+process.on("unhandledRejection", (err) => {
+  console.log(`Error: ${err.message}`);
+  console.log("Shutting down the server due to unhandled promise rejection");
+});
 // Instead of app.listen(), export the app for Vercel
 module.exports = app;

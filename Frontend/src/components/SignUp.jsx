@@ -14,6 +14,7 @@ const SignUp = () => {
   const [visible, setVisible] = useState(false);
   const [name, setName] = useState("");
   const [avatar, setAvatar] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate= useNavigate();
 
   const handleFileInputChange = (e) => {
@@ -30,7 +31,6 @@ const SignUp = () => {
       toast("Please select profile the image");
       return;
     }
-   
 
     const newForm= new FormData();
     newForm.append("name", name);
@@ -38,7 +38,7 @@ const SignUp = () => {
     newForm.append("email", email);
     newForm.append("password", password);
 
-    console.log(name);
+    setLoading(true);
 
     axios.post(`${server}/user/create-user`, newForm, config)
     .then((res)=>{
@@ -49,8 +49,9 @@ const SignUp = () => {
       setAvatar(null);
       navigate("/login");
     }).catch((err)=>{
-      console.log(err);
-      toast.error(err.response.data.message);
+      toast.error(err.response?.data?.message || "Registration failed");
+    }).finally(()=>{
+      setLoading(false);
     })
   };
 
@@ -174,11 +175,12 @@ const SignUp = () => {
 
             <div>
               <button
-                type="submitt"
-                className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent 
-                text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 hover:cursor-pointer"
+                type="submit"
+                disabled={loading}
+                className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent
+                text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 hover:cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Submit
+                {loading ? "Submitting..." : "Submit"}
               </button>
             </div>
 

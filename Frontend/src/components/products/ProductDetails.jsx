@@ -47,7 +47,11 @@ const ProductDetails = ({ data }) => {
   };
 
   const incrementCount = () => {
-    setCount(count + 1);
+    if (count < Number(data.stock)) {
+      setCount(count + 1);
+    } else {
+      toast.error("Product stock limited!");
+    }
   };
 
   const handleMessageSubmit = async () => {
@@ -95,6 +99,8 @@ const ProductDetails = ({ data }) => {
     } else {
       if (data.stock < 1) {
         toast.error("product stock limited!");
+      } else if (count > Number(data.stock)) {
+        toast.error("Selected quantity exceeds available stock!");
       } else {
         const cartData = { ...data, qty: count };
         dispatch(addToCartFun(cartData));
@@ -334,7 +340,7 @@ const ProductDetailsInfo = ({
               ? data.reviews.map((item, index) => (
                   <div className="w-full flex my-2" key={index}>
                     <img
-                      src={`/${item.user.avatar?.url}`}
+                      src={item.user.avatar?.url}
                       alt=""
                       className="w-[50px] h-[50px] rounded-full"
                     />

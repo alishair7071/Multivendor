@@ -4,7 +4,6 @@ const router = express.Router();
 const User = require("../model/user.js");
 const { upload } = require("../multer.js");
 const ErrorHandler = require("../utils/ErrorHandler.js");
-const fs = require("fs");
 const sendMail = require("../utils/sendMail.js");
 const jwt = require("jsonwebtoken");
 const catchAsyncError = require("../middleware/catchAsyncError.js");
@@ -132,12 +131,14 @@ router.post(
       const isPasswordValid = await user.comparePassword(password);
 
       if (!isPasswordValid) {
-        return next(new ErrorHandler("Invalid Credentials!"));
+        return next(new ErrorHandler("Invalid Credentials!", 400));
       }
-      console.log(user);
 
-      sendToken(user, 201, res);
-    } catch (e) {}
+      user.password = undefined;
+      sendToken(user, 200, res);
+    } catch (e) {
+      return next(new ErrorHandler(e.message, 500));
+    }
   })
 );
 
@@ -243,16 +244,35 @@ router.put(
         return next(new ErrorHandler("User does not exists", 400));
       }
 
-      const existAvatarPath = `uploads/${existsUser.avatar}`;
-
-      if (fs.existsSync(existAvatarPath)) {
-        fs.unlinkSync(existAvatarPath); // ✅ deletes synchronously and safely
+      if (!req.file) {
+        return next(new ErrorHandler("Please provide an image", 400));
       }
 
-      const fileUrl = req.file.filename;
+      // remove the old avatar from cloudinary
+      if (existsUser.avatar && existsUser.avatar.public_id) {
+        await cloudinary.v2.uploader.destroy(existsUser.avatar.public_id);
+      }
+
+      // upload the new avatar to cloudinary
+      const result = await new Promise((resolve, reject) => {
+        const stream = cloudinary.v2.uploader.upload_stream(
+          { folder: "avatars" },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(req.file.buffer);
+      });
+
       const user = await User.findByIdAndUpdate(
         req.user.id,
-        { avatar: fileUrl },
+        {
+          avatar: {
+            public_id: result.public_id,
+            url: result.secure_url,
+          },
+        },
         { new: true }
       );
 
@@ -381,12 +401,12 @@ router.get(
     try {
       const user = await User.findById(req.params.id);
 
-      res.status(201).json({
+      res.status(200).json({
         success: true,
         user,
       });
     } catch (error) {
-      return next(new ErrorHandler(e.message, 500));
+      return next(new ErrorHandler(error.message, 500));
     }
   })
 );

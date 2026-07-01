@@ -2,7 +2,6 @@
 
 const sendShopToken = (user, statusCode, res) => {
   const token = user.getJwtToken();
-  console.log(new Date(Date.now()));
 
   //options for Cookies
   const options = {
@@ -12,8 +11,6 @@ const sendShopToken = (user, statusCode, res) => {
     secure: true,
     path: "/",
   };
-  console.log("from ShopToken Token:  sent to client");
-  console.log(user);
 
   res.status(statusCode).cookie("seller_token", token, options).json({
     success: true,
